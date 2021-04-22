@@ -1,9 +1,10 @@
 package info.andrewmin.dji.lexer;
 
-import info.andrewmin.dji.Logger;
+import info.andrewmin.dji.exceptions.BaseUserException;
+import info.andrewmin.dji.exceptions.ExpectedCharacterException;
+import info.andrewmin.dji.exceptions.InternalCompilerError;
+import info.andrewmin.dji.exceptions.InvalidTokenException;
 import info.andrewmin.dji.tokens.*;
-
-import java.util.Iterator;
 
 /**
  * A lexical analyzer that splits a given program into Tokens.
@@ -11,7 +12,7 @@ import java.util.Iterator;
  * @see Token
  * @see FileCharIterator
  */
-public class Lexer implements Iterator<Token> {
+public class Lexer {
 
     private final FileCharIterator iter;
 
@@ -20,30 +21,31 @@ public class Lexer implements Iterator<Token> {
      *
      * @param fileName the file name.
      */
-    public Lexer(String fileName) {
+    public Lexer(String fileName) throws BaseUserException {
         this.iter = new FileCharIterator(fileName);
     }
 
     /**
-     * {@inheritDoc}
+     * Whether or not more tokens exist.
+     *
+     * @return if the end of the file has been reached or not.
      */
-    @Override
     public boolean hasNext() {
         return iter.peek() != null;
     }
 
     /**
-     * {@inheritDoc}
+     * Get the next Token.
+     *
+     * @return the next Token.
      */
-    @Override
-    public Token next() {
+    public Token next() throws BaseUserException {
         // Get the first non-whitespace character
         FileChar firstFileChar = new FileChar(' ');
         while (Character.isWhitespace(firstFileChar.getC())) {
             firstFileChar = iter.next();
             if (firstFileChar == null) {
-                Logger.getDefault().fatal(this, "Attempted to get next token, but at the end.");
-                return null;
+                throw new InternalCompilerError("Attempted to get next token, but at the end.");
             }
         }
 
@@ -61,8 +63,7 @@ public class Lexer implements Iterator<Token> {
         }
 
         if (t == null) {
-            Logger.getDefault().error(this, "Invalid token " + firstFileChar);
-            return null;
+            throw new InvalidTokenException(firstFileChar);
         }
         return t;
     }
@@ -87,7 +88,7 @@ public class Lexer implements Iterator<Token> {
      * @see LiteralToken.Int
      * @see LiteralToken.Double
      */
-    private Token nextNumberLiteralToken(char firstChar) {
+    private Token nextNumberLiteralToken(char firstChar) throws BaseUserException {
         StringBuilder rawLiteralBuilder = new StringBuilder(Character.toString(firstChar));
 
         // Keep peeking next digits or decimal points (only allow one decimal point)
@@ -115,11 +116,11 @@ public class Lexer implements Iterator<Token> {
      * @return a LiteralToken.
      * @see LiteralToken.Char
      */
-    private Token nextCharLiteralToken() {
+    private Token nextCharLiteralToken() throws BaseUserException {
         char rawLiteral = iter.next().getC();
 
         if (iter.next().getC() != '\'') {
-            Logger.getDefault().error(this, "Expected '");
+            throw new ExpectedCharacterException("'", new FileLoc(-1, -1));
         }
 
         return new LiteralToken.Char(rawLiteral);
@@ -131,7 +132,7 @@ public class Lexer implements Iterator<Token> {
      * @return a LiteralToken.
      * @see LiteralToken.String
      */
-    private Token nextStringLiteralToken() {
+    private Token nextStringLiteralToken() throws BaseUserException {
         StringBuilder rawLiteralBuilder = new StringBuilder();
         while (iter.peek() != null && iter.peek().getC() != '"') {
             rawLiteralBuilder.append(iter.peek().getC());
@@ -140,7 +141,7 @@ public class Lexer implements Iterator<Token> {
 
         // TODO log expected location
         if (iter.peek() == null) {
-            Logger.getDefault().error(this, "Expected \"");
+            throw new ExpectedCharacterException("\"", new FileLoc(-1, -1));
         }
         iter.next();
 
@@ -156,7 +157,7 @@ public class Lexer implements Iterator<Token> {
      * @param firstChar the first character.
      * @return a LiteralToken, KeywordToken, or IdentifierToken.
      */
-    private Token nextWordToken(char firstChar) {
+    private Token nextWordToken(char firstChar) throws BaseUserException {
         StringBuilder rawIdentifierBuilder = new StringBuilder(Character.toString(firstChar));
 
         while (iter.peek() != null && isIdentifierCharacter(iter.peek().getC())) {
@@ -187,7 +188,7 @@ public class Lexer implements Iterator<Token> {
      * @param firstChar the first character.
      * @return a SymbolToken, null if no valid symbol matches.
      */
-    private Token nextSymbolToken(char firstChar) {
+    private Token nextSymbolToken(char firstChar) throws BaseUserException {
         String rawSymbol = Character.toString(firstChar);
         while (iter.peek() != null) {
             rawSymbol += iter.peek().getC();

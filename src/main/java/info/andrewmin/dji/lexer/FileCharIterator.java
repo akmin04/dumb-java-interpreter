@@ -1,18 +1,20 @@
 package info.andrewmin.dji.lexer;
 
-import info.andrewmin.dji.Logger;
+import info.andrewmin.dji.exceptions.BaseUserException;
+import info.andrewmin.dji.exceptions.FileReadException;
+import info.andrewmin.dji.exceptions.InvalidSourceFileException;
 
 import java.io.*;
-import java.util.Iterator;
 
 /**
  * A peek-able iterator over a file split into FileChars.
  *
  * @see FileChar
  */
-public class FileCharIterator implements Iterator<FileChar> {
+public class FileCharIterator {
 
-    private BufferedReader reader;
+    private final String fileName;
+    private final BufferedReader reader;
 
     /**
      * Store iterator values in a buffer to allow peeking.
@@ -28,28 +30,31 @@ public class FileCharIterator implements Iterator<FileChar> {
      *
      * @param fileName the file name.
      */
-    public FileCharIterator(String fileName) {
+    public FileCharIterator(String fileName) throws BaseUserException {
         try {
+            this.fileName = fileName;
             this.reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
         } catch (FileNotFoundException e) {
-            Logger.getDefault().error(this, "Unable to open " + fileName);
+            throw new InvalidSourceFileException(fileName);
         }
         updateBuffer();
     }
 
     /**
-     * {@inheritDoc}
+     * Whether or not more tokens exist.
+     *
+     * @return if the end of the file has been reached or not.
      */
-    @Override
     public boolean hasNext() {
         return !isEOF;
     }
 
     /**
-     * {@inheritDoc}
+     * Consume and return the next FileChar.
+     *
+     * @return the next FileChar.
      */
-    @Override
-    public FileChar next() {
+    public FileChar next() throws BaseUserException {
         // TODO less crappy copy lol
         FileChar oldBuffer = (buffer == null)
                 ? null
@@ -70,7 +75,7 @@ public class FileCharIterator implements Iterator<FileChar> {
     /**
      * Read the next character in the file and update the buffer and line/column location.
      */
-    private void updateBuffer() {
+    private void updateBuffer() throws BaseUserException {
         if (isEOF) {
             buffer = null;
             return;
@@ -86,7 +91,7 @@ public class FileCharIterator implements Iterator<FileChar> {
             }
             c = (char) i;
         } catch (IOException e) {
-            Logger.getDefault().error(this, e.toString());
+            throw new FileReadException(fileName, e);
         }
 
         buffer = new FileChar(c, line, column);

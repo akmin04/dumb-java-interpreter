@@ -75,6 +75,6 @@ public class FileChar {
             default:
                 escaped = Character.toString(c);
         }
-        return "`" + escaped + "` at " + loc;
+        return escaped + " at " + loc;
     }
 }

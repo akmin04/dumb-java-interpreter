@@ -1,6 +1,6 @@
 package info.andrewmin.dji.tokens;
 
-import info.andrewmin.dji.Logger;
+import info.andrewmin.dji.exceptions.InternalCompilerError;
 
 /**
  * A keyword token.
@@ -20,7 +20,7 @@ public class KeywordToken extends Token {
         this.type = type;
 
         if (type == KeywordTokenType.FALSE || type == KeywordTokenType.TRUE) {
-            Logger.getDefault().fatal(this, "Boolean literal tokens should be LiteralToken.Boolean, not KeywordToken");
+            throw new InternalCompilerError("Boolean literal tokens should be LiteralToken.Boolean, not KeywordToken");
         }
     }
 
