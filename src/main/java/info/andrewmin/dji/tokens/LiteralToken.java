@@ -31,6 +31,15 @@ public abstract class LiteralToken<T> extends Token {
     }
 
     /**
+     * A boolean literal.
+     */
+    public static class Boolean extends LiteralToken<java.lang.Boolean> {
+        public Boolean(boolean value) {
+            super("Boolean", value);
+        }
+    }
+
+    /**
      * An integer literal.
      */
     public static class Int extends LiteralToken<Integer> {

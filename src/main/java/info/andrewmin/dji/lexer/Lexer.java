@@ -1,10 +1,7 @@
 package info.andrewmin.dji.lexer;
 
 import info.andrewmin.dji.Logger;
-import info.andrewmin.dji.tokens.LiteralToken;
-import info.andrewmin.dji.tokens.SymbolToken;
-import info.andrewmin.dji.tokens.SymbolTokenType;
-import info.andrewmin.dji.tokens.Token;
+import info.andrewmin.dji.tokens.*;
 
 import java.util.Iterator;
 
@@ -57,6 +54,8 @@ public class Lexer implements Iterator<Token> {
             t = nextCharLiteralToken();
         } else if (firstFileChar.getC() == '"') {
             t = nextStringLiteralToken();
+        } else if (isIdentifierCharacter(firstFileChar.getC())) {
+            t = nextWordToken(firstFileChar.getC());
         } else {
             t = nextSymbolToken(firstFileChar.getC());
         }
@@ -68,6 +67,26 @@ public class Lexer implements Iterator<Token> {
         return t;
     }
 
+    /**
+     * Check if a character is a valid Java identifier character.
+     * <p>
+     * https://docs.oracle.com/cd/E19798-01/821-1841/bnbuk/index.html
+     *
+     * @param c the character.
+     * @return a boolean.
+     */
+    private boolean isIdentifierCharacter(char c) {
+        return Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '$';
+    }
+
+    /**
+     * Construct the next number literal token (integer or double literal).
+     *
+     * @param firstChar the first character.
+     * @return a LiteralToken.
+     * @see LiteralToken.Int
+     * @see LiteralToken.Double
+     */
     private Token nextNumberLiteralToken(char firstChar) {
         StringBuilder rawLiteralBuilder = new StringBuilder(Character.toString(firstChar));
 
@@ -82,7 +101,7 @@ public class Lexer implements Iterator<Token> {
 
         String rawLiteral = rawLiteralBuilder.toString();
 
-        // TODO try/catch out of range
+        // TODO try/catch out of range literals
         if (hasDecimal) {
             return new LiteralToken.Double(Double.parseDouble(rawLiteral));
         } else {
@@ -90,6 +109,12 @@ public class Lexer implements Iterator<Token> {
         }
     }
 
+    /**
+     * Construct the next character literal token.
+     *
+     * @return a LiteralToken.
+     * @see LiteralToken.Char
+     */
     private Token nextCharLiteralToken() {
         char rawLiteral = iter.next().getC();
 
@@ -100,6 +125,12 @@ public class Lexer implements Iterator<Token> {
         return new LiteralToken.Char(rawLiteral);
     }
 
+    /**
+     * Construct the next string literal token.
+     *
+     * @return a LiteralToken.
+     * @see LiteralToken.String
+     */
     private Token nextStringLiteralToken() {
         StringBuilder rawLiteralBuilder = new StringBuilder();
         while (iter.peek() != null && iter.peek().getC() != '"') {
@@ -116,6 +147,46 @@ public class Lexer implements Iterator<Token> {
         return new LiteralToken.String(rawLiteralBuilder.toString());
     }
 
+    /**
+     * Construct the next "word" token (identifier or keyword).
+     * <p>
+     * First constructs an identifier, then checks if the text is a keyword instead.
+     * If the keyword is a boolean literal (true/false), return a boolean literal instead.
+     *
+     * @param firstChar the first character.
+     * @return a LiteralToken, KeywordToken, or IdentifierToken.
+     */
+    private Token nextWordToken(char firstChar) {
+        StringBuilder rawIdentifierBuilder = new StringBuilder(Character.toString(firstChar));
+
+        while (iter.peek() != null && isIdentifierCharacter(iter.peek().getC())) {
+            rawIdentifierBuilder.append(iter.next().getC());
+        }
+
+        String rawIdentifier = rawIdentifierBuilder.toString();
+
+        KeywordTokenType t = KeywordTokenType.map.get(rawIdentifier);
+        // boolean literals are a corner case
+        // true/false are keywords, but the token is a LiteralToken.Boolean
+        if (t != null) {
+            if (t == KeywordTokenType.TRUE) {
+                return new LiteralToken.Boolean(true);
+            } else if (t == KeywordTokenType.FALSE) {
+                return new LiteralToken.Boolean(false);
+            }
+            return new KeywordToken(t);
+        }
+        return new IdentifierToken(rawIdentifier);
+    }
+
+    /**
+     * Construct the next symbol token.
+     * <p>
+     * Longer symbols have priority (e.g. >> would be identified instead of just >).
+     *
+     * @param firstChar the first character.
+     * @return a SymbolToken, null if no valid symbol matches.
+     */
     private Token nextSymbolToken(char firstChar) {
         String rawSymbol = Character.toString(firstChar);
         while (iter.peek() != null) {

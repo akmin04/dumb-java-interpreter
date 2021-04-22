@@ -24,6 +24,9 @@ public enum KeywordTokenType {
     INT("int"),
     DOUBLE("double"),
     VOID("void"),
+
+    TRUE("true"),
+    FALSE("false"),
     ;
 
     /**
@@ -31,7 +34,8 @@ public enum KeywordTokenType {
      */
     public static Map<String, KeywordTokenType> map = Arrays.stream(new KeywordTokenType[]{
             IF, ELSE, FOR, WHILE, DO, BREAK, CONTINUE, RETURN,
-            BOOLEAN, CHAR, INT, DOUBLE, VOID
+            BOOLEAN, CHAR, INT, DOUBLE, VOID,
+            TRUE, FALSE
     })
             .collect(Collectors.toMap(e -> e.keyword, e -> e));
 

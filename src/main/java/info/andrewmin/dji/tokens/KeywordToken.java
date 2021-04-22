@@ -1,5 +1,7 @@
 package info.andrewmin.dji.tokens;
 
+import info.andrewmin.dji.Logger;
+
 /**
  * A keyword token.
  *
@@ -14,8 +16,12 @@ public class KeywordToken extends Token {
      * @param type the KeywordTokenType.
      */
     public KeywordToken(KeywordTokenType type) {
-        super(type.name());
+        super("Keyword");
         this.type = type;
+
+        if (type == KeywordTokenType.FALSE || type == KeywordTokenType.TRUE) {
+            Logger.getDefault().fatal(this, "Boolean literal tokens should be LiteralToken.Boolean, not KeywordToken");
+        }
     }
 
     /**

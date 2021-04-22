@@ -13,6 +13,10 @@ import java.util.Iterator;
 public class FileCharIterator implements Iterator<FileChar> {
 
     private BufferedReader reader;
+
+    /**
+     * Store iterator values in a buffer to allow peeking.
+     */
     private FileChar buffer;
 
     private boolean isEOF = false;
@@ -46,6 +50,7 @@ public class FileCharIterator implements Iterator<FileChar> {
      */
     @Override
     public FileChar next() {
+        // TODO less crappy copy lol
         FileChar oldBuffer = (buffer == null)
                 ? null
                 : new FileChar(buffer.getC(), buffer.getLoc().getLine(), buffer.getLoc().getColumn());
@@ -62,6 +67,9 @@ public class FileCharIterator implements Iterator<FileChar> {
         return buffer;
     }
 
+    /**
+     * Read the next character in the file and update the buffer and line/column location.
+     */
     private void updateBuffer() {
         if (isEOF) {
             buffer = null;

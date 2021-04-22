@@ -14,7 +14,7 @@ public class SymbolToken extends Token {
      * @param type the SymbolTokenType.
      */
     public SymbolToken(SymbolTokenType type) {
-        super(type.name());
+        super("Symbol");
         this.type = type;
     }
 
@@ -32,6 +32,6 @@ public class SymbolToken extends Token {
      */
     @Override
     public String toString() {
-        return super.toString() + ": " + type.symbol;
+        return super.toString() + ": " + type.name() + " " + type.symbol;
     }
 }
