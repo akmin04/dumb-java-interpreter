@@ -65,6 +65,7 @@ public class FileCharIterator implements Iterator<FileChar> {
     private void updateBuffer() {
         if (isEOF) {
             buffer = null;
+            return;
         }
 
         char c = 0;

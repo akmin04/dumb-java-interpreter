@@ -70,6 +70,17 @@ public class Logger {
         System.exit(1);
     }
 
+    /**
+     * Log a fatal message and exit the process.
+     *
+     * @param sender the sending object
+     * @param msg    the message.
+     */
+    public void fatal(Object sender, String msg) {
+        System.err.println(formatMessage(sender, msg, "FATAL"));
+        System.exit(1);
+    }
+
     private String formatMessage(Object sender, String msg, String level) {
         String className = sender != null ? sender.getClass().getSimpleName() + " - " : "";
         return "[" + level + "] " + className + msg;
