@@ -1,11 +1,6 @@
-123
-12.3
-+ - / 'a' { } ()
-"asdf"
-asdf
-true
-truee
-"true"
-for
-forr
-"for"
+{
+a(-(5 +7) + 6, b);
+5;
+a();
+int a = 5;
+char b = a();

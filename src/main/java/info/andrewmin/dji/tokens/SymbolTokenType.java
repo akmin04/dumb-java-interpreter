@@ -1,6 +1,7 @@
 package info.andrewmin.dji.tokens;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -57,6 +58,30 @@ public enum SymbolTokenType {
             LPAREN, LBRACK, LBRACE, COMMA, PERIOD, RPAREN, RBRACK, RBRACE, SEMICOLON, COLON
     })
             .collect(Collectors.toMap(e -> e.symbol, e -> e));
+
+    public static List<SymbolTokenType> unaryOps = List.of(SUB);
+
+    public static int binaryOpPrecedence(SymbolTokenType op) {
+        switch (op) {
+            case MUL:
+            case QUO:
+                return 30;
+            case ADD:
+            case SUB:
+                return 20;
+            case EQL:
+            case NEQ:
+            case LSS:
+            case GTR:
+            case LEQ:
+            case GEQ:
+                return 10;
+            case ASSIGN:
+                return 0;
+            default:
+                return -1;
+        }
+    }
 
     final String symbol;
 

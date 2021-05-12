@@ -5,7 +5,7 @@ package info.andrewmin.dji.lexer;
  *
  * @see FileChar
  */
-public class FileLoc {
+public final class FileLoc {
     private final int line;
     private final int column;
 
@@ -43,6 +43,15 @@ public class FileLoc {
      */
     @Override
     public String toString() {
-        return "Line " + line + ", Column " + column;
+        return "line " + line + ", column " + column;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FileLoc fileLoc = (FileLoc) o;
+        return line == fileLoc.line && column == fileLoc.column;
+    }
+
 }

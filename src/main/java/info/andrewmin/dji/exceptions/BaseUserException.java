@@ -5,7 +5,7 @@ package info.andrewmin.dji.exceptions;
  * <p>
  * e.g. Syntax errors, invalid tokens, invalid files.
  */
-public abstract class BaseUserException extends Exception {
+public abstract class BaseUserException extends RuntimeException {
     protected BaseUserException(String message) {
         super(message);
     }

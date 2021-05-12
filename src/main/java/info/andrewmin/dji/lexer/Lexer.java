@@ -1,10 +1,13 @@
 package info.andrewmin.dji.lexer;
 
-import info.andrewmin.dji.exceptions.BaseUserException;
+import info.andrewmin.dji.Peekable;
 import info.andrewmin.dji.exceptions.ExpectedCharacterException;
-import info.andrewmin.dji.exceptions.InternalCompilerError;
+import info.andrewmin.dji.exceptions.InternalCompilerException;
+import info.andrewmin.dji.exceptions.InvalidNumberException;
 import info.andrewmin.dji.exceptions.InvalidTokenException;
 import info.andrewmin.dji.tokens.*;
+
+import java.util.Iterator;
 
 /**
  * A lexical analyzer that splits a given program into Tokens.
@@ -12,17 +15,17 @@ import info.andrewmin.dji.tokens.*;
  * @see Token
  * @see FileCharIterator
  */
-public class Lexer {
+public class Lexer implements Iterator<Token> {
 
-    private final FileCharIterator iter;
+    private final Peekable<FileChar> chars;
 
     /**
      * Initiailize a Lexer from a file name.
      *
-     * @param fileName the file name.
+     * @param iter the FileCharIterator
      */
-    public Lexer(String fileName) throws BaseUserException {
-        this.iter = new FileCharIterator(fileName);
+    public Lexer(FileCharIterator iter) {
+        this.chars = new Peekable<>(iter);
     }
 
     /**
@@ -30,8 +33,9 @@ public class Lexer {
      *
      * @return if the end of the file has been reached or not.
      */
+    @Override
     public boolean hasNext() {
-        return iter.peek() != null;
+        return chars.hasNext();
     }
 
     /**
@@ -39,27 +43,28 @@ public class Lexer {
      *
      * @return the next Token.
      */
-    public Token next() throws BaseUserException {
+    @Override
+    public Token next() {
         // Get the first non-whitespace character
         FileChar firstFileChar = new FileChar(' ');
         while (Character.isWhitespace(firstFileChar.getC())) {
-            firstFileChar = iter.next();
-            if (firstFileChar == null) {
-                throw new InternalCompilerError("Attempted to get next token, but at the end.");
+            if (!chars.hasNext()) {
+                throw new InternalCompilerException("Attempted to get next token, but at the end.");
             }
+            firstFileChar = chars.next();
         }
 
         Token t;
         if (Character.isDigit(firstFileChar.getC())) {
-            t = nextNumberLiteralToken(firstFileChar.getC());
+            t = nextNumberLiteralToken(firstFileChar);
         } else if (firstFileChar.getC() == '\'') {
-            t = nextCharLiteralToken();
+            t = nextCharLiteralToken(firstFileChar);
         } else if (firstFileChar.getC() == '"') {
-            t = nextStringLiteralToken();
+            t = nextStringLiteralToken(firstFileChar);
         } else if (isIdentifierCharacter(firstFileChar.getC())) {
-            t = nextWordToken(firstFileChar.getC());
+            t = nextWordToken(firstFileChar);
         } else {
-            t = nextSymbolToken(firstFileChar.getC());
+            t = nextSymbolToken(firstFileChar);
         }
 
         if (t == null) {
@@ -88,25 +93,28 @@ public class Lexer {
      * @see LiteralToken.Int
      * @see LiteralToken.Double
      */
-    private Token nextNumberLiteralToken(char firstChar) throws BaseUserException {
-        StringBuilder rawLiteralBuilder = new StringBuilder(Character.toString(firstChar));
+    private Token nextNumberLiteralToken(FileChar firstFileChar) {
+        StringBuilder rawLiteralBuilder = new StringBuilder(Character.toString(firstFileChar.getC()));
 
         // Keep peeking next digits or decimal points (only allow one decimal point)
         boolean hasDecimal = false;
 
-        while (iter.peek() != null
-                && (Character.isDigit(iter.peek().getC()) || iter.peek().getC() == '.' && !hasDecimal)) {
-            hasDecimal = hasDecimal || iter.peek().getC() == '.';
-            rawLiteralBuilder.append(iter.next().getC());
+        while (chars.peek() != null
+                && (Character.isDigit(chars.peek().getC()) || chars.peek().getC() == '.' && !hasDecimal)) {
+            hasDecimal = hasDecimal || chars.peek().getC() == '.';
+            rawLiteralBuilder.append(chars.next().getC());
         }
 
         String rawLiteral = rawLiteralBuilder.toString();
 
-        // TODO try/catch out of range literals
-        if (hasDecimal) {
-            return new LiteralToken.Double(Double.parseDouble(rawLiteral));
-        } else {
-            return new LiteralToken.Int(Integer.parseInt(rawLiteral));
+        try {
+            if (hasDecimal) {
+                return new LiteralToken.Double(firstFileChar.getLoc(), Double.parseDouble(rawLiteral));
+            } else {
+                return new LiteralToken.Int(firstFileChar.getLoc(), Integer.parseInt(rawLiteral));
+            }
+        } catch (NumberFormatException e) {
+            throw new InvalidNumberException(firstFileChar, rawLiteral);
         }
     }
 
@@ -116,14 +124,16 @@ public class Lexer {
      * @return a LiteralToken.
      * @see LiteralToken.Char
      */
-    private Token nextCharLiteralToken() throws BaseUserException {
-        char rawLiteral = iter.next().getC();
-
-        if (iter.next().getC() != '\'') {
+    private Token nextCharLiteralToken(FileChar firstFileChar) {
+        if (!chars.hasNext()) {
+            throw new ExpectedCharacterException("a char", new FileLoc(-1, -1));
+        }
+        char rawLiteral = chars.next().getC();
+        if (chars.next().getC() != '\'') {
             throw new ExpectedCharacterException("'", new FileLoc(-1, -1));
         }
 
-        return new LiteralToken.Char(rawLiteral);
+        return new LiteralToken.Char(firstFileChar.getLoc(), rawLiteral);
     }
 
     /**
@@ -132,20 +142,20 @@ public class Lexer {
      * @return a LiteralToken.
      * @see LiteralToken.String
      */
-    private Token nextStringLiteralToken() throws BaseUserException {
+    private Token nextStringLiteralToken(FileChar firstFileChar) {
         StringBuilder rawLiteralBuilder = new StringBuilder();
-        while (iter.peek() != null && iter.peek().getC() != '"') {
-            rawLiteralBuilder.append(iter.peek().getC());
-            iter.next();
+        while (chars.peek() != null && chars.peek().getC() != '"') {
+            rawLiteralBuilder.append(chars.peek().getC());
+            chars.next();
         }
 
         // TODO log expected location
-        if (iter.peek() == null) {
+        if (chars.peek() == null) {
             throw new ExpectedCharacterException("\"", new FileLoc(-1, -1));
         }
-        iter.next();
+        chars.next();
 
-        return new LiteralToken.String(rawLiteralBuilder.toString());
+        return new LiteralToken.String(firstFileChar.getLoc(), rawLiteralBuilder.toString());
     }
 
     /**
@@ -157,27 +167,27 @@ public class Lexer {
      * @param firstChar the first character.
      * @return a LiteralToken, KeywordToken, or IdentifierToken.
      */
-    private Token nextWordToken(char firstChar) throws BaseUserException {
-        StringBuilder rawIdentifierBuilder = new StringBuilder(Character.toString(firstChar));
+    private Token nextWordToken(FileChar firstFileChar) {
+        StringBuilder rawIdentifierBuilder = new StringBuilder(Character.toString(firstFileChar.getC()));
 
-        while (iter.peek() != null && isIdentifierCharacter(iter.peek().getC())) {
-            rawIdentifierBuilder.append(iter.next().getC());
+        while (chars.hasNext() && isIdentifierCharacter(chars.peek().getC())) {
+            rawIdentifierBuilder.append(chars.next().getC());
         }
 
         String rawIdentifier = rawIdentifierBuilder.toString();
 
         KeywordTokenType t = KeywordTokenType.map.get(rawIdentifier);
-        // boolean literals are a corner case
+        // boolean literals are an exception
         // true/false are keywords, but the token is a LiteralToken.Boolean
         if (t != null) {
             if (t == KeywordTokenType.TRUE) {
-                return new LiteralToken.Boolean(true);
+                return new LiteralToken.Boolean(firstFileChar.getLoc(), true);
             } else if (t == KeywordTokenType.FALSE) {
-                return new LiteralToken.Boolean(false);
+                return new LiteralToken.Boolean(firstFileChar.getLoc(), false);
             }
-            return new KeywordToken(t);
+            return new KeywordToken(firstFileChar.getLoc(), t);
         }
-        return new IdentifierToken(rawIdentifier);
+        return new IdentifierToken(firstFileChar.getLoc(), rawIdentifier);
     }
 
     /**
@@ -188,12 +198,12 @@ public class Lexer {
      * @param firstChar the first character.
      * @return a SymbolToken, null if no valid symbol matches.
      */
-    private Token nextSymbolToken(char firstChar) throws BaseUserException {
-        String rawSymbol = Character.toString(firstChar);
-        while (iter.peek() != null) {
-            rawSymbol += iter.peek().getC();
+    private Token nextSymbolToken(FileChar firstFileChar) {
+        String rawSymbol = Character.toString(firstFileChar.getC());
+        while (chars.hasNext()) {
+            rawSymbol += chars.peek().getC();
             if (SymbolTokenType.map.containsKey(rawSymbol)) {
-                iter.next();
+                chars.next();
             } else {
                 rawSymbol = rawSymbol.substring(0, rawSymbol.length() - 1);
                 break;
@@ -201,6 +211,6 @@ public class Lexer {
         }
 
         SymbolTokenType t = SymbolTokenType.map.get(rawSymbol);
-        return t != null ? new SymbolToken(t) : null;
+        return t != null ? new SymbolToken(firstFileChar.getLoc(), t) : null;
     }
 }

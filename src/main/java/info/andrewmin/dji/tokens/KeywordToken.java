@@ -1,13 +1,14 @@
 package info.andrewmin.dji.tokens;
 
-import info.andrewmin.dji.exceptions.InternalCompilerError;
+import info.andrewmin.dji.exceptions.InternalCompilerException;
+import info.andrewmin.dji.lexer.FileLoc;
 
 /**
  * A keyword token.
  *
  * @see KeywordTokenType
  */
-public class KeywordToken extends Token {
+public final class KeywordToken extends Token {
     private final KeywordTokenType type;
 
     /**
@@ -15,12 +16,12 @@ public class KeywordToken extends Token {
      *
      * @param type the KeywordTokenType.
      */
-    public KeywordToken(KeywordTokenType type) {
-        super("Keyword");
+    public KeywordToken(FileLoc loc, KeywordTokenType type) {
+        super("Keyword", loc);
         this.type = type;
 
         if (type == KeywordTokenType.FALSE || type == KeywordTokenType.TRUE) {
-            throw new InternalCompilerError("Boolean literal tokens should be LiteralToken.Boolean, not KeywordToken");
+            throw new InternalCompilerException("Boolean literal tokens should be LiteralToken.Boolean, not KeywordToken");
         }
     }
 

@@ -1,17 +1,18 @@
 package info.andrewmin.dji.lexer;
 
-import info.andrewmin.dji.exceptions.BaseUserException;
 import info.andrewmin.dji.exceptions.FileReadException;
 import info.andrewmin.dji.exceptions.InvalidSourceFileException;
 
 import java.io.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * A peek-able iterator over a file split into FileChars.
  *
  * @see FileChar
  */
-public class FileCharIterator {
+public final class FileCharIterator implements Iterator<FileChar> {
 
     private final String fileName;
     private final BufferedReader reader;
@@ -21,22 +22,27 @@ public class FileCharIterator {
      */
     private FileChar buffer;
 
-    private boolean isEOF = false;
     private int line = 1;
     private int column = 1;
 
     /**
-     * Construct a FileCharIterator from a file name.
+     * Construct a FileCharIterator from a file.
      *
-     * @param fileName the file name.
+     * @param file the source file.
      */
-    public FileCharIterator(String fileName) throws BaseUserException {
+    public FileCharIterator(File file) {
+        this.fileName = file.getName();
         try {
-            this.fileName = fileName;
-            this.reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+            this.reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
         } catch (FileNotFoundException e) {
-            throw new InvalidSourceFileException(fileName);
+            throw new InvalidSourceFileException(this.fileName);
         }
+        updateBuffer();
+    }
+
+    public FileCharIterator(String raw) {
+        this.fileName = "RAW_INPUT";
+        this.reader = new BufferedReader(new StringReader(raw));
         updateBuffer();
     }
 
@@ -45,8 +51,9 @@ public class FileCharIterator {
      *
      * @return if the end of the file has been reached or not.
      */
+    @Override
     public boolean hasNext() {
-        return !isEOF;
+        return buffer != null;
     }
 
     /**
@@ -54,53 +61,38 @@ public class FileCharIterator {
      *
      * @return the next FileChar.
      */
-    public FileChar next() throws BaseUserException {
-        // TODO less crappy copy lol
-        FileChar oldBuffer = (buffer == null)
-                ? null
-                : new FileChar(buffer.getC(), buffer.getLoc().getLine(), buffer.getLoc().getColumn());
+    @Override
+    public FileChar next() {
+        if (buffer == null) {
+            throw new NoSuchElementException();
+        }
+        FileChar c = buffer;
         updateBuffer();
-        return oldBuffer;
-    }
-
-    /**
-     * Peek at the next FileChar.
-     *
-     * @return a FileChar.
-     */
-    public FileChar peek() {
-        return buffer;
+        return c;
     }
 
     /**
      * Read the next character in the file and update the buffer and line/column location.
      */
-    private void updateBuffer() throws BaseUserException {
-        if (isEOF) {
-            buffer = null;
-            return;
-        }
-
-        char c = 0;
+    private void updateBuffer() {
         try {
             int i = reader.read();
             if (i == -1) {
-                isEOF = true;
                 buffer = null;
                 return;
             }
-            c = (char) i;
+
+            char c = (char) i;
+            buffer = new FileChar(c, line, column);
+
+            if (c == '\n') {
+                line++;
+                column = 1;
+            } else {
+                column++;
+            }
         } catch (IOException e) {
             throw new FileReadException(fileName, e);
-        }
-
-        buffer = new FileChar(c, line, column);
-
-        if (c == '\n') {
-            line++;
-            column = 1;
-        } else {
-            column++;
         }
     }
 }

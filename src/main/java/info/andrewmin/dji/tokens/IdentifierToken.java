@@ -1,5 +1,7 @@
 package info.andrewmin.dji.tokens;
 
+import info.andrewmin.dji.lexer.FileLoc;
+
 /**
  * An identifier token.
  * <p>
@@ -8,7 +10,7 @@ package info.andrewmin.dji.tokens;
  *
  * @see KeywordTokenType
  */
-public class IdentifierToken extends Token {
+public final class IdentifierToken extends Token {
     private final String identifier;
 
     /**
@@ -16,8 +18,8 @@ public class IdentifierToken extends Token {
      *
      * @param identifier the identifier.
      */
-    public IdentifierToken(String identifier) {
-        super("Identifier");
+    public IdentifierToken(FileLoc loc, String identifier) {
+        super("Identifier", loc);
         this.identifier = identifier;
     }
 

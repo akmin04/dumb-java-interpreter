@@ -1,11 +1,13 @@
 package info.andrewmin.dji.tokens;
 
+import info.andrewmin.dji.lexer.FileLoc;
+
 /**
  * A symbol token.
  *
  * @see SymbolTokenType
  */
-public class SymbolToken extends Token {
+public final class SymbolToken extends Token {
     private final SymbolTokenType type;
 
     /**
@@ -13,8 +15,8 @@ public class SymbolToken extends Token {
      *
      * @param type the SymbolTokenType.
      */
-    public SymbolToken(SymbolTokenType type) {
-        super("Symbol");
+    public SymbolToken(FileLoc loc, SymbolTokenType type) {
+        super("Symbol", loc);
         this.type = type;
     }
 

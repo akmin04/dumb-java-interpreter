@@ -1,5 +1,7 @@
 package info.andrewmin.dji.tokens;
 
+import info.andrewmin.dji.lexer.FileLoc;
+
 /**
  * A token with a literal value.
  *
@@ -8,8 +10,8 @@ package info.andrewmin.dji.tokens;
 public abstract class LiteralToken<T> extends Token {
     private final T value;
 
-    private LiteralToken(java.lang.String name, T value) {
-        super(name + "Literal");
+    private LiteralToken(java.lang.String name, FileLoc loc, T value) {
+        super(name + "Literal", loc);
         this.value = value;
     }
 
@@ -33,45 +35,45 @@ public abstract class LiteralToken<T> extends Token {
     /**
      * A boolean literal.
      */
-    public static class Boolean extends LiteralToken<java.lang.Boolean> {
-        public Boolean(boolean value) {
-            super("Boolean", value);
+    public static final class Boolean extends LiteralToken<java.lang.Boolean> {
+        public Boolean(FileLoc loc, boolean value) {
+            super("Boolean", loc, value);
         }
     }
 
     /**
      * An integer literal.
      */
-    public static class Int extends LiteralToken<Integer> {
-        public Int(int value) {
-            super("Int", value);
+    public static final class Int extends LiteralToken<Integer> {
+        public Int(FileLoc loc, int value) {
+            super("Int", loc, value);
         }
     }
 
     /**
      * A double literal.
      */
-    public static class Double extends LiteralToken<java.lang.Double> {
-        public Double(double value) {
-            super("Double", value);
+    public static final class Double extends LiteralToken<java.lang.Double> {
+        public Double(FileLoc loc, double value) {
+            super("Double", loc, value);
         }
     }
 
     /**
      * A character literal.
      */
-    public static class Char extends LiteralToken<Character> {
-        public Char(char value) {
-            super("Char", value);
+    public static final class Char extends LiteralToken<Character> {
+        public Char(FileLoc loc, char value) {
+            super("Char", loc, value);
         }
     }
 
     /**
      * A string literal.
      */
-    public static class String extends LiteralToken<java.lang.String> {
-        public String(java.lang.String value) {
-            super("String", value);
+    public static final class String extends LiteralToken<java.lang.String> {
+        public String(FileLoc loc, java.lang.String value) {
+            super("String", loc, value);
         }
     }
 

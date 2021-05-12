@@ -1,5 +1,7 @@
 package info.andrewmin.dji.tokens;
 
+import info.andrewmin.dji.lexer.FileLoc;
+
 /**
  * A base DJava token.
  * <p>
@@ -17,9 +19,29 @@ package info.andrewmin.dji.tokens;
  */
 public abstract class Token {
     private final String name;
+    private final FileLoc loc;
 
-    protected Token(String name) {
+    protected Token(String name, FileLoc loc) {
         this.name = name;
+        this.loc = loc;
+    }
+
+    public FileLoc getLoc() {
+        return loc;
+    }
+
+    public boolean isKeyword(KeywordTokenType type) {
+        if (!(this instanceof KeywordToken)) {
+            return false;
+        }
+        return ((KeywordToken) this).getType() == type;
+    }
+
+    public boolean isSymbol(SymbolTokenType type) {
+        if (!(this instanceof SymbolToken)) {
+            return false;
+        }
+        return ((SymbolToken) this).getType() == type;
     }
 
     /**
