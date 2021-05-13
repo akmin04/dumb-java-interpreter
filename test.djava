@@ -1,6 +1,5 @@
-{
-a(-(5 +7) + 6, b);
-5;
-a();
-int a = 5;
-char b = a();
+int a(double b, String asdf) {
+  double b = 10;
+  String a = asdf(a, b, 5 / (f() * -10));
+  f(b, a);
+}
