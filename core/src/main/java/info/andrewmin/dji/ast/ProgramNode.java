@@ -18,8 +18,8 @@ public class ProgramNode extends Node {
         this.functions = functions;
     }
 
-    public boolean hasMain() {
-        return functions.get(MAIN_FUNC) != null;
+    public FunctionNode getMain() {
+        return functions.get(MAIN_FUNC);
     }
 
     public Map<String, FunctionNode> getFunctions() {

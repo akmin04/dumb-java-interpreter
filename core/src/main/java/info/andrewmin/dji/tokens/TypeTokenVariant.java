@@ -1,6 +1,7 @@
 package info.andrewmin.dji.tokens;
 
 import info.andrewmin.dji.exceptions.InternalCompilerException;
+import info.andrewmin.dji.runtime.Value;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -32,22 +33,23 @@ public enum TypeTokenVariant {
      * @param type the primitive type.
      * @return the default literal.
      */
-    public static LiteralToken<?> defaultLiteral(TypeTokenVariant type) {
+    public static Value<?> defaultValue(TypeTokenVariant type) {
         switch (type) {
             case BOOLEAN:
-                return new LiteralToken.Boolean(null, null, false);
+                return new Value.Boolean(false);
             case CHAR:
-                return new LiteralToken.Char(null, null, '\u0000');
+                return new Value.Char('\u0000');
             case INT:
-                return new LiteralToken.Int(null, null, 0);
+                return new Value.Int(0);
             case DOUBLE:
-                return new LiteralToken.Double(null, null, 0.0);
+                return new Value.Double(0.0);
             case STRING:
-                return new LiteralToken.String(null, null, null);
+                return new Value.String("");
             case VOID:
             default:
                 throw new InternalCompilerException("void was used as a type");
         }
+
     }
 
     TypeTokenVariant(String type) {

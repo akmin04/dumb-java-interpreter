@@ -59,10 +59,16 @@ public enum SymbolTokenVariant {
     })
             .collect(Collectors.toMap(e -> e.symbol, e -> e));
 
+    public static List<SymbolTokenVariant> binaryOps = List.of(
+            ADD, SUB, MUL, QUO, REM,
+            ADD_ASSIGN, SUB_ASSIGN, MUL_ASSIGN, QUO_ASSIGN, REM_ASSIGN,
+            ASSIGN, NOT, INC, DEC,
+            EQL, LSS, GTR, NEQ, LEQ, GEQ, LAND, LOR
+    );
     /**
      * All valid unary operators.
      */
-    public static List<SymbolTokenVariant> unaryOps = List.of(SUB);
+    public static List<SymbolTokenVariant> unaryOps = List.of(SUB, NOT);
 
     /**
      * Get the precedence of a binary operator (higher value is higher precedence).

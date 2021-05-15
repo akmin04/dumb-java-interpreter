@@ -25,7 +25,7 @@ final class StatementParser {
                 lexer.next();
                 expr = expressionParser.parse();
             } else {
-                expr = new ExpressionNode.Literal(TypeTokenVariant.defaultLiteral(type));
+                expr = new ExpressionNode.Literal(TypeTokenVariant.defaultValue(type));
             }
 
             lexer.next(SymbolTokenVariant.SEMICOLON);
@@ -34,6 +34,11 @@ final class StatementParser {
         } else if (peek.isKeyword(KeywordTokenVariant.IF)) {
             lexer.next();
             // TODO
+        } else if (peek.isKeyword(KeywordTokenVariant.RETURN)) {
+            lexer.next();
+            ExpressionNode expr = expressionParser.parse();
+            lexer.next(SymbolTokenVariant.SEMICOLON);
+            return new StatementNode.Return(expr);
         } else if (peek.isSymbol(SymbolTokenVariant.SEMICOLON)) {
             lexer.next();
             return parse();

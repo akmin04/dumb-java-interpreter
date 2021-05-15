@@ -78,4 +78,17 @@ public abstract class StatementNode extends Node {
             return statements;
         }
     }
+
+    public static class Return extends StatementNode {
+        private final ExpressionNode expr;
+
+        public Return(ExpressionNode expr) {
+            super("Return", new NodeProp("expr", expr));
+            this.expr = expr;
+        }
+
+        public ExpressionNode getExpr() {
+            return expr;
+        }
+    }
 }

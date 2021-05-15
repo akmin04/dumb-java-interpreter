@@ -4,6 +4,7 @@ import info.andrewmin.dji.ast.ExpressionNode;
 import info.andrewmin.dji.exceptions.ExpectedCharacterException;
 import info.andrewmin.dji.exceptions.UnexpectedCharacterException;
 import info.andrewmin.dji.lexer.Lexer;
+import info.andrewmin.dji.runtime.Value;
 import info.andrewmin.dji.tokens.*;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ final class ExpressionParser {
 
         // Literal
         if (next instanceof LiteralToken) {
-            return new ExpressionNode.Literal((LiteralToken<?>) next);
+            return new ExpressionNode.Literal(Value.fromToken((LiteralToken<?>) next));
         }
         // FunctionCall or VariableReference
         else if (next instanceof IdentifierToken) {
@@ -86,7 +87,7 @@ final class ExpressionParser {
     private ExpressionNode parseBinaryRightExpr(int prevPrecedence, ExpressionNode leftExpr) {
         while (true) {
             Token peek = lexer.peek();
-            if (!(peek instanceof SymbolToken)) {
+            if (!(peek instanceof SymbolToken && SymbolTokenVariant.binaryOps.contains(((SymbolToken) peek).getType()))) {
                 return leftExpr;
             }
 

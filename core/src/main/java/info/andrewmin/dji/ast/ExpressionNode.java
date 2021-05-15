@@ -2,7 +2,7 @@ package info.andrewmin.dji.ast;
 
 import info.andrewmin.dji.ast.formatting.Node;
 import info.andrewmin.dji.ast.formatting.NodeProp;
-import info.andrewmin.dji.tokens.LiteralToken;
+import info.andrewmin.dji.runtime.Value;
 import info.andrewmin.dji.tokens.SymbolTokenVariant;
 
 import java.util.List;
@@ -20,17 +20,17 @@ public abstract class ExpressionNode extends Node {
      * A literal value expression.
      */
     public static class Literal extends ExpressionNode {
-        private final LiteralToken<?> value;
+        private final Value<?> value;
 
-        public Literal(LiteralToken<?> token) {
+        public Literal(Value<?> value) {
             super(
                     "Literal",
-                    new NodeProp("value", token)
+                    new NodeProp("value", value)
             );
-            this.value = token;
+            this.value = value;
         }
 
-        public LiteralToken<?> getValue() {
+        public Value<?> getValue() {
             return value;
         }
     }
