@@ -90,5 +90,4 @@ public final class FileLoc {
         FileLoc fileLoc = (FileLoc) o;
         return line == fileLoc.line && column == fileLoc.column;
     }
-
 }

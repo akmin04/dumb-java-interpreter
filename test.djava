@@ -1,33 +1,11 @@
 int main() {
-        for (int i = 0; i < 10; i = i + 1) {
-            while ( j < 5) {
-                if (a == 5) {
-                    continue;
-                } else if (a == 10) {
-                    a();
-                } else {
-                    for (int i = 0; i < 10; i = i + 1) {
-                        while ( j < 5) {
-                            if (a == 5) {
-                                continue;
-                            } else if (a == 10) {
-                                a();
-                            } else {
-                                b(5);
-                            }
+        int a = 5;
+            return 10   ;
+            a + (5 / (10 * f(5, a)));
+}
 
-                            c();
-                        }
-                        d();
-                    }
-                    e();
-                    b(5);
-                }
-
-                c();
-            }
-            d();
-        }
-        e();
-
+double a(int a, int b, String c) {
+    int a = 5;
+    return a;
+    a + (5 / (10 * f(5, a)));
 }

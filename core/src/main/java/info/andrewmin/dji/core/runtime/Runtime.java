@@ -5,15 +5,16 @@ import info.andrewmin.dji.core.ast.FunctionNode;
 import info.andrewmin.dji.core.ast.ProgramNode;
 import info.andrewmin.dji.core.ast.StatementNode;
 
-public class Runtime {
+import java.util.logging.Logger;
 
-    private final RuntimeStore store;
-    private final RuntimeState state;
+public class Runtime {
+    private static final Logger LOGGER = Logger.getLogger(Runtime.class.getName());
+
+    private final RuntimeContext context;
     private final ProgramNode program;
 
     public Runtime(ProgramNode program) {
-        this.store = new RuntimeStore();
-        this.state = new RuntimeState();
+        this.context = new RuntimeContext();
         this.program = program;
     }
 
@@ -27,32 +28,35 @@ public class Runtime {
     }
 
     private Value<?> run(FunctionNode function) {
-        store.pushScope();
+        context.pushVarScope();
         for (StatementNode statement : function.getStatements()) {
             run(statement);
-            if (state.getReturnValue() != null) {
-                Value<?> ret = state.getReturnValue();
-                state.setReturnValue(null);
-                store.popScope();
+            if (context.getReturnValue() != null) {
+                Value<?> ret = context.getReturnValue();
+                context.resetReturnValue();
+                context.popVarScope();
                 return ret;
             }
         }
-        store.popScope();
+        context.popVarScope();
         return null;
     }
 
     private void run(StatementNode statement) {
         if (statement instanceof StatementNode.Expression) {
+            LOGGER.fine("Running expression statement: " + statement.getName());
             StatementNode.Expression expr = (StatementNode.Expression) statement;
             run(expr.getExpr());
         } else if (statement instanceof StatementNode.Return) {
+            LOGGER.fine("Running return statement: " + statement.getName());
             StatementNode.Return ret = (StatementNode.Return) statement;
-            state.setReturnValue(run(ret.getExpr()));
+            context.setReturnValue(run(ret.getExpr()));
         }
     }
 
     private Value<?> run(ExpressionNode expr) {
         if (expr instanceof ExpressionNode.Literal) {
+            LOGGER.fine("Running literal expression: " + expr.getName());
             return ((ExpressionNode.Literal) expr).getValue();
         }
         return null;

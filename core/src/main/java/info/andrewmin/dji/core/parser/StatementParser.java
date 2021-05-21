@@ -8,11 +8,14 @@ import info.andrewmin.dji.core.tokens.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * A statement node parser.
  */
 final class StatementParser {
+    private static final Logger LOGGER = Logger.getLogger(StatementParser.class.getName());
+
     private final Lexer lexer;
     private final ExpressionParser expressionParser;
 
@@ -35,6 +38,7 @@ final class StatementParser {
         Token peek = lexer.peek();
         // Block
         if (peek.isSymbol(SymbolTokenVariant.LBRACE)) {
+            LOGGER.fine("Block statement");
             lexer.next();
             List<StatementNode> statements = new ArrayList<>();
             while (true) {
@@ -51,6 +55,7 @@ final class StatementParser {
         }
         // VariableDeclaration
         else if (peek instanceof TypeToken) {
+            LOGGER.fine("Variable declaration statement");
             TypeTokenVariant type = lexer.nextType().getType();
             String var = lexer.nextIdentifier().getIdentifier();
             ExpressionNode expr;
@@ -68,6 +73,7 @@ final class StatementParser {
         }
         // If
         else if (peek.isKeyword(KeywordTokenVariant.IF)) {
+            LOGGER.fine("If statement");
             lexer.next();
             lexer.next(SymbolTokenVariant.LPAREN);
             ExpressionNode condition = expressionParser.parse();
@@ -84,6 +90,7 @@ final class StatementParser {
         }
         // For
         else if (peek.isKeyword(KeywordTokenVariant.FOR)) {
+            LOGGER.fine("For statement");
             lexer.next();
             lexer.next(SymbolTokenVariant.LPAREN);
             StatementNode init = parse();
@@ -97,6 +104,7 @@ final class StatementParser {
         }
         // While
         else if (peek.isKeyword(KeywordTokenVariant.WHILE)) {
+            LOGGER.fine("While statement");
             lexer.next();
             lexer.next(SymbolTokenVariant.LPAREN);
             ExpressionNode condition = expressionParser.parse();
@@ -107,6 +115,7 @@ final class StatementParser {
         }
         // Break
         else if (peek.isKeyword(KeywordTokenVariant.BREAK)) {
+            LOGGER.fine("Break statement");
             lexer.next();
             lexer.next(SymbolTokenVariant.SEMICOLON);
 
@@ -114,6 +123,7 @@ final class StatementParser {
         }
         // Continue
         else if (peek.isKeyword(KeywordTokenVariant.CONTINUE)) {
+            LOGGER.fine("Continue statement");
             lexer.next();
             lexer.next(SymbolTokenVariant.SEMICOLON);
 
@@ -121,6 +131,7 @@ final class StatementParser {
         }
         // Return
         else if (peek.isKeyword(KeywordTokenVariant.RETURN)) {
+            LOGGER.fine("Return statement");
             lexer.next();
             ExpressionNode expr = expressionParser.parse();
             lexer.next(SymbolTokenVariant.SEMICOLON);
@@ -129,10 +140,12 @@ final class StatementParser {
         }
         // No-op
         else if (peek.isSymbol(SymbolTokenVariant.SEMICOLON)) {
+            LOGGER.fine("Semicolon statement");
             lexer.next();
             return parse();
         }
         // Expression
+        LOGGER.fine("Expression statement");
         ExpressionNode expr = expressionParser.parse();
         lexer.next(SymbolTokenVariant.SEMICOLON);
 

@@ -9,5 +9,5 @@ dependencies {
 
 application {
     mainModule = 'info.andrewmin.dji.cli'
-    mainClass = 'info.andrewmin.dji.cli.CLI'
+    mainClass = 'info.andrewmin.dji.cli.Main'
 }

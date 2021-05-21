@@ -22,6 +22,15 @@ abstract class Node {
     }
 
     /**
+     * Get the node name.
+     *
+     * @return The node name.
+     */
+    public String getName() {
+        return nodeName;
+    }
+
+    /**
      * The string representation given the current indent level.
      *
      * @param indentLevel The indent level of the node in the tree output.

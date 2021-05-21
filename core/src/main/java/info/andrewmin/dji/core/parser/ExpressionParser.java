@@ -9,11 +9,14 @@ import info.andrewmin.dji.core.tokens.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * An expression node parser.
  */
 final class ExpressionParser {
+    private static final Logger LOGGER = Logger.getLogger(ExpressionParser.class.getName());
+
     private final Lexer lexer;
 
     /**
@@ -47,6 +50,7 @@ final class ExpressionParser {
 
         // Literal
         if (next instanceof LiteralToken) {
+            LOGGER.fine("Literal");
             return new ExpressionNode.Literal(Value.fromToken((LiteralToken<?>) next));
         }
         // VariableReference or FunctionCall
@@ -54,6 +58,7 @@ final class ExpressionParser {
             String name = ((IdentifierToken) next).getIdentifier();
 
             if (lexer.hasNext() && lexer.peek().isSymbol(SymbolTokenVariant.LPAREN)) {
+                LOGGER.fine("Function call");
                 lexer.next();
                 List<ExpressionNode> args = new ArrayList<>();
 
@@ -80,14 +85,17 @@ final class ExpressionParser {
 
                 return new ExpressionNode.FunctionCall(name, args);
             }
+            LOGGER.fine("Variable reference");
             return new ExpressionNode.VariableReference(name);
         }
         // Unary
         else if (next instanceof SymbolToken && SymbolTokenVariant.unaryOps.contains(((SymbolToken) next).getVariant())) {
+            LOGGER.fine("Unary");
             return new ExpressionNode.Unary(((SymbolToken) next).getVariant(), parseWithoutBinary());
         }
         // Parenthesis
         else if (next.isSymbol(SymbolTokenVariant.LPAREN)) {
+            LOGGER.fine("Parenthesis");
             ExpressionNode node = parse();
             lexer.next(SymbolTokenVariant.RPAREN);
             return node;
@@ -105,6 +113,7 @@ final class ExpressionParser {
      */
     private ExpressionNode parseBinaryRightExpr(int prevPrecedence, ExpressionNode leftExpr) {
         while (true) {
+            LOGGER.fine("Right expr");
             Token peek = lexer.peek();
             if (!(peek instanceof SymbolToken && SymbolTokenVariant.binaryOps.contains(((SymbolToken) peek).getVariant()))) {
                 return leftExpr;

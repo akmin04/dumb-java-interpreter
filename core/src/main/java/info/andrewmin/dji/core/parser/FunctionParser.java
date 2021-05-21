@@ -12,11 +12,14 @@ import info.andrewmin.dji.core.tokens.TypeTokenVariant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * A function node parser.
  */
 final class FunctionParser {
+    private static final Logger LOGGER = Logger.getLogger(FunctionParser.class.getName());
+
     private final Lexer lexer;
     private final StatementParser statementParser;
 
@@ -36,8 +39,10 @@ final class FunctionParser {
      * @return The next function.
      */
     FunctionNode parse() {
+        LOGGER.fine("Parsing function");
         TypeTokenVariant type = lexer.nextType().getType();
         String func = lexer.nextIdentifier().getIdentifier();
+        LOGGER.fine("Name: " + func);
         lexer.next(SymbolTokenVariant.LPAREN);
 
         List<Var> parameters = new ArrayList<>();
@@ -47,10 +52,13 @@ final class FunctionParser {
             lexer.next();
         } else {
             while (true) {
-                parameters.add(new Var(
+                Var parameter = new Var(
                         lexer.nextType().getType(),
                         lexer.nextIdentifier().getIdentifier()
-                ));
+                );
+                parameters.add(parameter);
+                LOGGER.fine("Parameter: " + parameter);
+
                 if (!lexer.hasNext()) {
                     throw new ExpectedEntityException(") or ,", lexer.current().getEndLoc());
                 } else if (lexer.peek().isSymbol(SymbolTokenVariant.RPAREN)) {
@@ -69,6 +77,8 @@ final class FunctionParser {
         if (!(statement instanceof StatementNode.Block)) {
             throw new ExpectedEntityException("a block", loc);
         }
+
+        LOGGER.info("Parsed function " + func);
         return new FunctionNode(func, type, parameters, (StatementNode.Block) statement);
     }
 

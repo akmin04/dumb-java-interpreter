@@ -10,25 +10,26 @@ import info.andrewmin.dji.core.runtime.Runtime;
 import info.andrewmin.dji.core.tokens.Token;
 
 import java.io.File;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
-public class CLI {
+public class Main {
 
     public static void main(String[] args) {
-        try {
-            System.out.println("***** Tokens *****");
-            for (Lexer it = new Lexer(new FileCharIterator(new File("../test.djava"))); it.hasNext(); ) {
-                Token t = it.next();
-                System.out.println(t);
-            }
+        initLogger();
 
+        try {
+//            System.out.println("***** Tokens *****");
             FileCharIterator iter = new FileCharIterator(new File("../test.djava"));
             Lexer lexer = new Lexer(iter);
             ProgramParser parser = new ProgramParser(lexer);
             ProgramNode node = parser.parse();
-            System.out.println("\n\n***** Abstract Syntax Tree *****");
-            System.out.println(node);
+//            System.out.println("\n\n***** Abstract Syntax Tree *****");
+//            System.out.println(node);
 
-            System.out.println("\n\n***** Runtime *****");
+//            System.out.println("\n\n***** Runtime *****");
             Runtime runtime = new Runtime(node);
             System.out.println("Main returned: " + runtime.runProgram());
         } catch (BaseUserException e) {
@@ -38,5 +39,16 @@ public class CLI {
             System.err.println("Internal error: " + e.getMessage());
             System.exit(1);
         }
+    }
+
+    private static void initLogger() {
+        LogManager.getLogManager().reset();
+        Handler handler = new LogHandler();
+        handler.setLevel(Level.ALL);
+        handler.setFormatter(new LogFormatter());
+
+        Logger rootLogger = LogManager.getLogManager().getLogger("");
+        rootLogger.setLevel(Level.ALL);
+        rootLogger.addHandler(handler);
     }
 }
