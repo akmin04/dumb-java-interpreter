@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'dji'
     id 'application'
 }
 
@@ -8,6 +8,6 @@ dependencies {
 }
 
 application {
-    // Define the main class for the application.
-    mainClass = 'info.andrewmin.dji.CLI'
+    mainModule = 'info.andrewmin.dji.cli'
+    mainClass = 'info.andrewmin.dji.cli.CLI'
 }
