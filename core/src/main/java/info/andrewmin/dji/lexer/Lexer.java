@@ -1,7 +1,6 @@
 package info.andrewmin.dji.lexer;
 
-import info.andrewmin.dji.Peekable;
-import info.andrewmin.dji.exceptions.ExpectedCharacterException;
+import info.andrewmin.dji.exceptions.ExpectedEntityException;
 import info.andrewmin.dji.exceptions.InvalidNumberException;
 import info.andrewmin.dji.exceptions.InvalidTokenException;
 import info.andrewmin.dji.exceptions.UnexpectedCharacterException;
@@ -18,7 +17,7 @@ import java.util.NoSuchElementException;
  */
 public class Lexer implements Iterator<Token> {
 
-    private final Peekable<FileChar> chars;
+    private final FileCharIterator chars;
     private Token buffer;
     private Token current;
 
@@ -28,7 +27,7 @@ public class Lexer implements Iterator<Token> {
      * @param iter the FileCharIterator
      */
     public Lexer(FileCharIterator iter) {
-        this.chars = new Peekable<>(iter);
+        this.chars = iter;
         updateBuffer();
         this.current = null;
     }
@@ -51,7 +50,7 @@ public class Lexer implements Iterator<Token> {
 
     public IdentifierToken nextIdentifier() {
         if (!hasNext()) {
-            throw new ExpectedCharacterException("an identifier", current().getEndLoc());
+            throw new ExpectedEntityException("an identifier", current().getEndLoc());
         }
         Token next = next();
         if (!(next instanceof IdentifierToken)) {
@@ -62,7 +61,7 @@ public class Lexer implements Iterator<Token> {
 
     public KeywordToken nextKeyword() {
         if (!hasNext()) {
-            throw new ExpectedCharacterException("a keyword", current().getEndLoc());
+            throw new ExpectedEntityException("a keyword", current().getEndLoc());
         }
         Token next = next();
         if (!(next instanceof KeywordToken)) {
@@ -73,7 +72,7 @@ public class Lexer implements Iterator<Token> {
 
     public SymbolToken nextSymbol() {
         if (!hasNext()) {
-            throw new ExpectedCharacterException("a symbol", current().getEndLoc());
+            throw new ExpectedEntityException("a symbol", current().getEndLoc());
         }
         Token next = next();
         if (!(next instanceof SymbolToken)) {
@@ -84,7 +83,7 @@ public class Lexer implements Iterator<Token> {
 
     public TypeToken nextType() {
         if (!hasNext()) {
-            throw new ExpectedCharacterException("a type", current().getEndLoc());
+            throw new ExpectedEntityException("a type", current().getEndLoc());
         }
         Token next = next();
         if (!(next instanceof TypeToken)) {
@@ -118,7 +117,6 @@ public class Lexer implements Iterator<Token> {
     public Token current() {
         return current;
     }
-
 
     private void updateBuffer() {
         // Get the first non-whitespace character
@@ -201,11 +199,11 @@ public class Lexer implements Iterator<Token> {
      */
     private Token nextCharLiteralToken(FileChar firstFileChar) {
         if (!chars.hasNext()) {
-            throw new ExpectedCharacterException("a char", endLoc());
+            throw new ExpectedEntityException("a char", endLoc());
         }
         char rawLiteral = chars.next().getC();
         if (!chars.hasNext()) {
-            throw new ExpectedCharacterException("'", endLoc());
+            throw new ExpectedEntityException("'", endLoc());
         }
         if (chars.next().getC() != '\'') {
             throw new UnexpectedCharacterException(Character.toString(chars.current().getC()), chars.current().getLoc());
@@ -228,7 +226,7 @@ public class Lexer implements Iterator<Token> {
         }
 
         if (chars.peek() == null) {
-            throw new ExpectedCharacterException("\"", endLoc());
+            throw new ExpectedEntityException("\"", endLoc());
         }
         chars.next();
 

@@ -5,11 +5,7 @@ import info.andrewmin.dji.ast.FunctionNode;
 import info.andrewmin.dji.ast.ProgramNode;
 import info.andrewmin.dji.ast.StatementNode;
 
-import java.util.logging.Logger;
-
 public class Runtime {
-
-    private static final Logger LOGGER = Logger.getLogger(Runtime.class.getName());
 
     private final RuntimeStore store;
     private final RuntimeState state;

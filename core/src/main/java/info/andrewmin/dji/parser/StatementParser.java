@@ -2,10 +2,15 @@ package info.andrewmin.dji.parser;
 
 import info.andrewmin.dji.ast.ExpressionNode;
 import info.andrewmin.dji.ast.StatementNode;
+import info.andrewmin.dji.exceptions.ExpectedEntityException;
 import info.andrewmin.dji.lexer.Lexer;
 import info.andrewmin.dji.tokens.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 final class StatementParser {
+
     private final Lexer lexer;
     private final ExpressionParser expressionParser;
 
@@ -16,7 +21,24 @@ final class StatementParser {
 
     StatementNode parse() {
         Token peek = lexer.peek();
-        if (peek instanceof TypeToken) {
+        // Block
+        if (peek.isSymbol(SymbolTokenVariant.LBRACE)) {
+            lexer.next();
+            List<StatementNode> statements = new ArrayList<>();
+            while (true) {
+                statements.add(parse());
+                if (!lexer.hasNext()) {
+                    throw new ExpectedEntityException("}", lexer.current().getEndLoc());
+                } else if (lexer.peek().isSymbol(SymbolTokenVariant.RBRACE)) {
+                    lexer.next();
+                    break;
+                }
+            }
+
+            return new StatementNode.Block(statements);
+        }
+        // VariableDeclaration
+        else if (peek instanceof TypeToken) {
             TypeTokenVariant type = lexer.nextType().getType();
             String var = lexer.nextIdentifier().getIdentifier();
             ExpressionNode expr;
@@ -31,21 +53,77 @@ final class StatementParser {
             lexer.next(SymbolTokenVariant.SEMICOLON);
 
             return new StatementNode.VariableDeclaration(var, expr);
-        } else if (peek.isKeyword(KeywordTokenVariant.IF)) {
+        }
+        // If
+        else if (peek.isKeyword(KeywordTokenVariant.IF)) {
             lexer.next();
-            // TODO
-        } else if (peek.isKeyword(KeywordTokenVariant.RETURN)) {
+            lexer.next(SymbolTokenVariant.LPAREN);
+            ExpressionNode condition = expressionParser.parse();
+            lexer.next(SymbolTokenVariant.RPAREN);
+            StatementNode body = parse();
+            StatementNode _else = null;
+
+            if (lexer.peek().isKeyword(KeywordTokenVariant.ELSE)) {
+                lexer.next();
+                _else = parse();
+            }
+
+            return new StatementNode.If(condition, body, _else);
+        }
+        // For
+        else if (peek.isKeyword(KeywordTokenVariant.FOR)) {
+            lexer.next();
+            lexer.next(SymbolTokenVariant.LPAREN);
+            StatementNode init = parse();
+            ExpressionNode condition = expressionParser.parse();
+            lexer.next(SymbolTokenVariant.SEMICOLON);
+            ExpressionNode post = expressionParser.parse();
+            lexer.next(SymbolTokenVariant.RPAREN);
+            StatementNode body = parse();
+
+            return new StatementNode.For(init, condition, post, body);
+        }
+        // While
+        else if (peek.isKeyword(KeywordTokenVariant.WHILE)) {
+            lexer.next();
+            lexer.next(SymbolTokenVariant.LPAREN);
+            ExpressionNode condition = expressionParser.parse();
+            lexer.next(SymbolTokenVariant.RPAREN);
+            StatementNode body = parse();
+
+            return new StatementNode.While(condition, body);
+        }
+        // Break
+        else if (peek.isKeyword(KeywordTokenVariant.BREAK)) {
+            lexer.next();
+            lexer.next(SymbolTokenVariant.SEMICOLON);
+
+            return new StatementNode.Break();
+        }
+        // Continue
+        else if (peek.isKeyword(KeywordTokenVariant.CONTINUE)) {
+            lexer.next();
+            lexer.next(SymbolTokenVariant.SEMICOLON);
+
+            return new StatementNode.Continue();
+        }
+        // Return
+        else if (peek.isKeyword(KeywordTokenVariant.RETURN)) {
             lexer.next();
             ExpressionNode expr = expressionParser.parse();
             lexer.next(SymbolTokenVariant.SEMICOLON);
+
             return new StatementNode.Return(expr);
-        } else if (peek.isSymbol(SymbolTokenVariant.SEMICOLON)) {
+        }
+        // No-op
+        else if (peek.isSymbol(SymbolTokenVariant.SEMICOLON)) {
             lexer.next();
             return parse();
         }
-
+        // Expression
         ExpressionNode expr = expressionParser.parse();
         lexer.next(SymbolTokenVariant.SEMICOLON);
+
         return new StatementNode.Expression(expr);
     }
 }

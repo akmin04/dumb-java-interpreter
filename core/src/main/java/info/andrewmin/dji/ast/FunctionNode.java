@@ -1,7 +1,5 @@
 package info.andrewmin.dji.ast;
 
-import info.andrewmin.dji.ast.formatting.Node;
-import info.andrewmin.dji.ast.formatting.NodeProp;
 import info.andrewmin.dji.runtime.Var;
 import info.andrewmin.dji.tokens.TypeTokenVariant;
 
@@ -11,20 +9,19 @@ public class FunctionNode extends Node {
     private final String name;
     private final TypeTokenVariant returnType;
     private final List<Var> parameters;
-    private final List<StatementNode> statements;
+    private final StatementNode.Block block;
 
-    public FunctionNode(String name, TypeTokenVariant returnType, List<Var> parameters, List<StatementNode> statements) {
-        super(
-                "Function",
+    public FunctionNode(String name, TypeTokenVariant returnType, List<Var> parameters, StatementNode.Block block) {
+        super("Function",
                 new NodeProp("name", name),
                 new NodeProp("return", returnType.type),
                 new NodeProp("parameters", parameters.toArray()),
-                new NodeProp("statements", statements.toArray())
+                new NodeProp("statements", block.getStatements().toArray())
         );
         this.name = name;
         this.returnType = returnType;
         this.parameters = parameters;
-        this.statements = statements;
+        this.block = block;
     }
 
     public String getName() {
@@ -40,6 +37,6 @@ public class FunctionNode extends Node {
     }
 
     public List<StatementNode> getStatements() {
-        return statements;
+        return block.getStatements();
     }
 }

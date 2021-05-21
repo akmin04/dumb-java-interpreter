@@ -1,7 +1,5 @@
 package info.andrewmin.dji.ast;
 
-import info.andrewmin.dji.ast.formatting.Node;
-import info.andrewmin.dji.ast.formatting.NodeProp;
 import info.andrewmin.dji.runtime.Value;
 import info.andrewmin.dji.tokens.SymbolTokenVariant;
 
@@ -23,10 +21,7 @@ public abstract class ExpressionNode extends Node {
         private final Value<?> value;
 
         public Literal(Value<?> value) {
-            super(
-                    "Literal",
-                    new NodeProp("value", value)
-            );
+            super("Literal", new NodeProp("value", value));
             this.value = value;
         }
 
@@ -42,10 +37,7 @@ public abstract class ExpressionNode extends Node {
         private final String name;
 
         public VariableReference(String name) {
-            super(
-                    "VariableReference",
-                    new NodeProp("name", name)
-            );
+            super("VariableReference", new NodeProp("name", name));
             this.name = name;
         }
 
@@ -62,8 +54,7 @@ public abstract class ExpressionNode extends Node {
         private final List<ExpressionNode> args;
 
         public FunctionCall(String name, List<ExpressionNode> args) {
-            super(
-                    "FunctionCall",
+            super("FunctionCall",
                     new NodeProp("name", name),
                     new NodeProp("args", args.toArray())
             );
@@ -89,8 +80,7 @@ public abstract class ExpressionNode extends Node {
         private final ExpressionNode rightExpr;
 
         public Binary(SymbolTokenVariant operator, ExpressionNode leftExpr, ExpressionNode rightExpr) {
-            super(
-                    "Binary",
+            super("Binary",
                     new NodeProp("operator", operator.symbol),
                     new NodeProp("left", leftExpr),
                     new NodeProp("right", rightExpr)
@@ -121,8 +111,7 @@ public abstract class ExpressionNode extends Node {
         private final ExpressionNode expr;
 
         public Unary(SymbolTokenVariant operator, ExpressionNode expr) {
-            super(
-                    "Unary",
+            super("Unary",
                     new NodeProp("operator", operator.symbol),
                     new NodeProp("expression", expr)
             );

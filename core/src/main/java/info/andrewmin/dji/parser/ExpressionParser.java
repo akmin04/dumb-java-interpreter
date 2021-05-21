@@ -1,7 +1,7 @@
 package info.andrewmin.dji.parser;
 
 import info.andrewmin.dji.ast.ExpressionNode;
-import info.andrewmin.dji.exceptions.ExpectedCharacterException;
+import info.andrewmin.dji.exceptions.ExpectedEntityException;
 import info.andrewmin.dji.exceptions.UnexpectedCharacterException;
 import info.andrewmin.dji.lexer.Lexer;
 import info.andrewmin.dji.runtime.Value;
@@ -14,6 +14,7 @@ import java.util.List;
  * Parse expression AST nodes.
  */
 final class ExpressionParser {
+
     private final Lexer lexer;
 
     ExpressionParser(Lexer lexer) {
@@ -27,7 +28,7 @@ final class ExpressionParser {
      */
     ExpressionNode parse() {
         if (!lexer.hasNext()) {
-            throw new ExpectedCharacterException("an expression", lexer.current().getEndLoc());
+            throw new ExpectedEntityException("an expression", lexer.current().getEndLoc());
         }
         return parseBinaryRightExpr(0, parseWithoutBinary());
     }
@@ -39,7 +40,7 @@ final class ExpressionParser {
         if (next instanceof LiteralToken) {
             return new ExpressionNode.Literal(Value.fromToken((LiteralToken<?>) next));
         }
-        // FunctionCall or VariableReference
+        // VariableReference or FunctionCall
         else if (next instanceof IdentifierToken) {
             String name = ((IdentifierToken) next).getIdentifier();
 
@@ -49,14 +50,14 @@ final class ExpressionParser {
 
                 // Get argument expressions, unless the function call has no args
                 if (!lexer.hasNext()) {
-                    throw new ExpectedCharacterException(")", lexer.current().getEndLoc());
+                    throw new ExpectedEntityException(")", lexer.current().getEndLoc());
                 } else if (lexer.peek().isSymbol(SymbolTokenVariant.RPAREN)) {
                     lexer.next();
                 } else {
                     while (true) {
                         args.add(parse());
                         if (!lexer.hasNext()) {
-                            throw new ExpectedCharacterException(") or ,", lexer.current().getEndLoc());
+                            throw new ExpectedEntityException(") or ,", lexer.current().getEndLoc());
                         } else if (lexer.peek().isSymbol(SymbolTokenVariant.RPAREN)) {
                             lexer.next();
                             break;
@@ -71,17 +72,19 @@ final class ExpressionParser {
                 return new ExpressionNode.FunctionCall(name, args);
             }
             return new ExpressionNode.VariableReference(name);
-        } else if (next instanceof SymbolToken) {
-            SymbolTokenVariant symbol = ((SymbolToken) next).getType();
-            if (symbol == SymbolTokenVariant.LPAREN) {
-                ExpressionNode node = parse();
-                lexer.next(SymbolTokenVariant.RPAREN);
-                return node;
-            } else if (SymbolTokenVariant.unaryOps.contains(symbol)) {
-                return new ExpressionNode.Unary(symbol, parseWithoutBinary());
-            }
         }
-        return null;
+        // Unary
+        else if (next instanceof SymbolToken && SymbolTokenVariant.unaryOps.contains(((SymbolToken) next).getType())) {
+            return new ExpressionNode.Unary(((SymbolToken) next).getType(), parseWithoutBinary());
+        }
+        // Parenthesis
+        else if (next.isSymbol(SymbolTokenVariant.LPAREN)) {
+            ExpressionNode node = parse();
+            lexer.next(SymbolTokenVariant.RPAREN);
+            return node;
+        }
+
+        throw new UnexpectedCharacterException(next);
     }
 
     private ExpressionNode parseBinaryRightExpr(int prevPrecedence, ExpressionNode leftExpr) {

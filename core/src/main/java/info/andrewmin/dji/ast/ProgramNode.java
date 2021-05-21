@@ -1,8 +1,5 @@
 package info.andrewmin.dji.ast;
 
-import info.andrewmin.dji.ast.formatting.Node;
-import info.andrewmin.dji.ast.formatting.NodeProp;
-
 import java.util.Map;
 
 public class ProgramNode extends Node {

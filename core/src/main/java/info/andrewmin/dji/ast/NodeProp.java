@@ -1,11 +1,11 @@
-package info.andrewmin.dji.ast.formatting;
+package info.andrewmin.dji.ast;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class NodeProp {
+class NodeProp {
     private final String key;
     private final List<?> objs;
 
@@ -15,21 +15,27 @@ public class NodeProp {
     }
 
     public String toStringIndented(int indentLevel) {
-        if (objs.size() == 1) {
-            return indent((key + ": " + objs.get(0)), indentLevel);
-        }
         StringBuilder builder = new StringBuilder()
                 .append(key)
-                .append(": [")
-                .append("\n");
-        for (Object o : objs) {
-            String objStr = (o instanceof Node) ? ((Node) o).toStringIndented(indentLevel - 1) : o.toString();
-            objStr = indent(objStr, indentLevel);
+                .append(": ");
+
+        if (objs.isEmpty()) {
+            builder.append("[]");
+        } else if (objs.size() == 1) {
+            builder.append(objs.get(0));
+        } else {
             builder
-                    .append(objStr)
+                    .append("[")
                     .append("\n");
+            for (Object o : objs) {
+                String objStr = (o instanceof Node) ? ((Node) o).toStringIndented(indentLevel - 1) : o.toString();
+                objStr = indent(objStr, indentLevel);
+                builder
+                        .append(objStr)
+                        .append("\n");
+            }
+            builder.append("]");
         }
-        builder.append("]");
         return indent(builder.toString(), indentLevel);
     }
 

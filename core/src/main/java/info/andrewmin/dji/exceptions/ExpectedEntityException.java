@@ -7,8 +7,8 @@ import info.andrewmin.dji.lexer.FileLoc;
  * <p>
  * e.g. missing an ending double quote after a string literal.
  */
-public class ExpectedCharacterException extends BaseUserException {
-    public ExpectedCharacterException(String expected, FileLoc at) {
+public class ExpectedEntityException extends BaseUserException {
+    public ExpectedEntityException(String expected, FileLoc at) {
         super("Expected " + expected + " at " + at);
     }
 }

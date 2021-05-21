@@ -21,6 +21,7 @@ public final class FileCharIterator implements Iterator<FileChar> {
      * Store iterator values in a buffer to allow peeking.
      */
     private FileChar buffer;
+    private FileChar current;
 
     private int line = 1;
     private int column = 1;
@@ -38,6 +39,7 @@ public final class FileCharIterator implements Iterator<FileChar> {
             throw new InvalidSourceFileException(this.fileName);
         }
         updateBuffer();
+        this.current = null;
     }
 
     public FileCharIterator(String raw) {
@@ -67,8 +69,20 @@ public final class FileCharIterator implements Iterator<FileChar> {
             throw new NoSuchElementException();
         }
         FileChar c = buffer;
+        current = buffer;
         updateBuffer();
         return c;
+    }
+
+    public FileChar peek() {
+        if (buffer == null) {
+            throw new NoSuchElementException();
+        }
+        return buffer;
+    }
+
+    public FileChar current() {
+        return current;
     }
 
     /**

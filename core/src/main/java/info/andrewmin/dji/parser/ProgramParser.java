@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ProgramParser {
+
     private final Lexer lexer;
     private final FunctionParser functionParser;
 
