@@ -15,7 +15,7 @@ import java.util.NoSuchElementException;
  * @see Token
  * @see FileCharIterator
  */
-public class Lexer implements Iterator<Token> {
+public final class Lexer implements Iterator<Token> {
     private final FileCharIterator chars;
     private Token buffer;
     private Token current;

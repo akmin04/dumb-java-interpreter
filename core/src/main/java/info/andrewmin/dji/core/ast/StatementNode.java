@@ -1,5 +1,7 @@
 package info.andrewmin.dji.core.ast;
 
+import info.andrewmin.dji.core.tokens.TypeTokenVariant;
+
 import java.util.List;
 
 /**
@@ -52,20 +54,24 @@ public abstract class StatementNode extends Node {
      */
     public static class VariableDeclaration extends StatementNode {
         private final String name;
+        private final TypeTokenVariant type;
         private final ExpressionNode expr;
 
         /**
          * Construct a new variable declaration statement node.
          *
          * @param name The name of the variable.
-         * @param expr The variable's value expression.
+         * @param type The variable type.
+         * @param expr The variable value expression.
          */
-        public VariableDeclaration(String name, ExpressionNode expr) {
+        public VariableDeclaration(String name, TypeTokenVariant type, ExpressionNode expr) {
             super("VariableDeclaration",
                     new NodeProp("name", name),
+                    new NodeProp("type", type),
                     new NodeProp("value", expr)
             );
             this.name = name;
+            this.type = type;
             this.expr = expr;
         }
 
@@ -76,6 +82,15 @@ public abstract class StatementNode extends Node {
          */
         public String getName() {
             return name;
+        }
+
+        /**
+         * Get the variable type.
+         *
+         * @return The variable type.
+         */
+        public TypeTokenVariant getType() {
+            return type;
         }
 
         /**

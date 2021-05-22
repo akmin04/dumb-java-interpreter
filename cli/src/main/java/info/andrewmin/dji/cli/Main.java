@@ -7,7 +7,6 @@ import info.andrewmin.dji.core.lexer.FileCharIterator;
 import info.andrewmin.dji.core.lexer.Lexer;
 import info.andrewmin.dji.core.parser.ProgramParser;
 import info.andrewmin.dji.core.runtime.Runtime;
-import info.andrewmin.dji.core.tokens.Token;
 
 import java.io.File;
 import java.util.logging.Handler;
@@ -26,10 +25,10 @@ public class Main {
             Lexer lexer = new Lexer(iter);
             ProgramParser parser = new ProgramParser(lexer);
             ProgramNode node = parser.parse();
-//            System.out.println("\n\n***** Abstract Syntax Tree *****");
-//            System.out.println(node);
+            System.out.println("\n\n***** Abstract Syntax Tree *****");
+            System.out.println(node);
 
-//            System.out.println("\n\n***** Runtime *****");
+            System.out.println("\n\n***** Runtime *****");
             Runtime runtime = new Runtime(node);
             System.out.println("Main returned: " + runtime.runProgram());
         } catch (BaseUserException e) {
@@ -48,7 +47,7 @@ public class Main {
         handler.setFormatter(new LogFormatter());
 
         Logger rootLogger = LogManager.getLogManager().getLogger("");
-        rootLogger.setLevel(Level.ALL);
+        rootLogger.setLevel(Level.INFO);
         rootLogger.addHandler(handler);
     }
 }

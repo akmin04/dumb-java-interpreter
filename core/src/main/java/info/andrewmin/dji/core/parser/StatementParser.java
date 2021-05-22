@@ -69,7 +69,7 @@ final class StatementParser {
 
             lexer.next(SymbolTokenVariant.SEMICOLON);
 
-            return new StatementNode.VariableDeclaration(var, expr);
+            return new StatementNode.VariableDeclaration(var, type, expr);
         }
         // If
         else if (peek.isKeyword(KeywordTokenVariant.IF)) {
@@ -143,12 +143,13 @@ final class StatementParser {
             LOGGER.fine("Semicolon statement");
             lexer.next();
             return parse();
-        }
-        // Expression
-        LOGGER.fine("Expression statement");
-        ExpressionNode expr = expressionParser.parse();
-        lexer.next(SymbolTokenVariant.SEMICOLON);
+        } else {
+            // Expression
+            LOGGER.fine("Expression statement");
+            ExpressionNode expr = expressionParser.parse();
+            lexer.next(SymbolTokenVariant.SEMICOLON);
 
-        return new StatementNode.Expression(expr);
+            return new StatementNode.Expression(expr);
+        }
     }
 }

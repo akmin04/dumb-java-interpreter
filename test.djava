@@ -1,11 +1,7 @@
-int main() {
-        int a = 5;
-            return 10   ;
-            a + (5 / (10 * f(5, a)));
-}
-
-double a(int a, int b, String c) {
-    int a = 5;
-    return a;
-    a + (5 / (10 * f(5, a)));
+boolean main() {
+    int a;
+    a = 5;
+    a = 10 / (3 + 1);
+    a += 5;
+    return !(a == 7);
 }

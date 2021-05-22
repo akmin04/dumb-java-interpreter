@@ -26,7 +26,7 @@ abstract class Node {
      *
      * @return The node name.
      */
-    public String getName() {
+    public String getNodeName() {
         return nodeName;
     }
 

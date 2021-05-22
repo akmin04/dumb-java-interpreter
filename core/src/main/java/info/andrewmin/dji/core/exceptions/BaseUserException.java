@@ -7,7 +7,7 @@ package info.andrewmin.dji.core.exceptions;
  */
 public abstract class BaseUserException extends RuntimeException {
     /**
-     * Construct a new base user exception
+     * Construct a new base user exception.
      *
      * @param message the exception message.
      */

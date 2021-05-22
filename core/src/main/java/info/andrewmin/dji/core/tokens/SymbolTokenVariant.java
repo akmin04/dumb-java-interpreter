@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public enum SymbolTokenVariant {
 
-    // Math symbols.
+    // Binary operators.
 
     /**
      * The add symbol.
@@ -54,9 +54,6 @@ public enum SymbolTokenVariant {
      * The remainder assign symbol.
      */
     REM_ASSIGN("%="),
-
-    // Binary operators.
-
     /**
      * The assign symbol.
      */
@@ -156,7 +153,7 @@ public enum SymbolTokenVariant {
     public final String symbol;
 
     /**
-     * THe map of raw symbols to their respective variant.
+     * The map of raw symbols to their respective variant.
      */
     public static Map<String, SymbolTokenVariant> map = Arrays.stream(new SymbolTokenVariant[]{
             ADD, SUB, MUL, QUO, REM,
@@ -192,17 +189,26 @@ public enum SymbolTokenVariant {
         switch (op) {
             case MUL:
             case QUO:
-                return 30;
+                return 50;
             case ADD:
             case SUB:
-                return 20;
+                return 40;
             case EQL:
             case NEQ:
             case LSS:
             case GTR:
             case LEQ:
             case GEQ:
+                return 30;
+            case LAND:
+                return 20;
+            case LOR:
                 return 10;
+            case ADD_ASSIGN:
+            case SUB_ASSIGN:
+            case MUL_ASSIGN:
+            case QUO_ASSIGN:
+            case REM_ASSIGN:
             case ASSIGN:
                 return 0;
             default:

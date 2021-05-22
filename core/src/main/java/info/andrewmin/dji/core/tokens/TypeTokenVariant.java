@@ -7,17 +7,38 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * A type token variant.
+ */
 public enum TypeTokenVariant {
+    /**
+     * The boolean type.
+     */
     BOOLEAN("boolean"),
+    /**
+     * The character type.
+     */
     CHAR("char"),
+    /**
+     * The integer type.
+     */
     INT("int"),
+    /**
+     * The double type.
+     */
     DOUBLE("double"),
+    /**
+     * The string type.
+     */
     STRING("String"),
+    /**
+     * The void type.
+     */
     VOID("void"),
     ;
 
     /**
-     * A map of raw keywords to their respective KeywordTokenType
+     * A map of raw keywords to their respective variant.
      */
     public static Map<String, TypeTokenVariant> map = Arrays.stream(new TypeTokenVariant[]{
             BOOLEAN, CHAR, INT, DOUBLE, STRING, VOID
@@ -30,7 +51,7 @@ public enum TypeTokenVariant {
     /**
      * Get the default literal value Token for primitives.
      *
-     * @param type the primitive type.
+     * @param type The primitive type.
      * @return The default literal.
      */
     public static Value<?> defaultValue(TypeTokenVariant type) {
@@ -52,6 +73,11 @@ public enum TypeTokenVariant {
 
     }
 
+    /**
+     * Construct a new type token variant.
+     *
+     * @param type The raw type string.
+     */
     TypeTokenVariant(String type) {
         this.type = type;
     }

@@ -2,6 +2,7 @@ package info.andrewmin.dji.core.parser;
 
 import info.andrewmin.dji.core.ast.FunctionNode;
 import info.andrewmin.dji.core.ast.ProgramNode;
+import info.andrewmin.dji.core.exceptions.InvalidIdentifierException;
 import info.andrewmin.dji.core.lexer.Lexer;
 
 import java.util.HashMap;
@@ -42,6 +43,9 @@ public final class ProgramParser {
         Map<String, FunctionNode> functions = new HashMap<>();
         while (lexer.hasNext()) {
             FunctionNode function = functionParser.parse();
+            if (functions.containsKey(function.getName())) {
+                throw new InvalidIdentifierException(function.getName());
+            }
             functions.put(function.getName(), function);
         }
         return new ProgramNode(functions);
