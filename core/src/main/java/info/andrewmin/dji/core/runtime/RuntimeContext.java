@@ -16,7 +16,7 @@ final class RuntimeContext {
 
     private final Map<String, Value<?>> varValues;
     private final Stack<Set<String>> varStack;
-
+    private final RuntimeLoopState loopState;
     private Value<?> returnValue;
 
     /**
@@ -26,6 +26,7 @@ final class RuntimeContext {
         this.varValues = new HashMap<>();
         this.varStack = new Stack<>();
         this.returnValue = null;
+        this.loopState = new RuntimeLoopState();
     }
 
     /**
@@ -52,6 +53,10 @@ final class RuntimeContext {
      */
     public void resetReturnValue() {
         returnValue = null;
+    }
+
+    public RuntimeLoopState getLoopState() {
+        return loopState;
     }
 
     /**

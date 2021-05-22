@@ -189,6 +189,7 @@ public enum SymbolTokenVariant {
         switch (op) {
             case MUL:
             case QUO:
+            case REM:
                 return 50;
             case ADD:
             case SUB:

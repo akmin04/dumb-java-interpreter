@@ -96,14 +96,22 @@ public final class Runtime {
      * @param statement The statement node.
      */
     private void run(StatementNode statement) {
+        // Skip statements until end of loop if break or continue is called.
+        if (context.getLoopState().getFlowState() != RuntimeLoopState.Flow.NONE) {
+            LOGGER.fine("Skipping statement, flow state is " + context.getLoopState().getFlowState());
+            return;
+        }
+
         // Block
         if (statement instanceof StatementNode.Block) {
             StatementNode.Block block = (StatementNode.Block) statement;
             LOGGER.fine("Running block statement");
 
+            context.pushVarScope();
             for (StatementNode s : block.getStatements()) {
                 run(s);
             }
+            context.popVarScope();
         }
         // VariableDeclaration
         if (statement instanceof StatementNode.VariableDeclaration) {
@@ -138,18 +146,54 @@ public final class Runtime {
             StatementNode.For _for = (StatementNode.For) statement;
             LOGGER.fine("Running for statement");
 
+            context.getLoopState().loopStart();
             for (run(_for.getInit()); run(_for.getCondition()).isTrue(); run(_for.getPost())) {
+                if (context.getLoopState().getFlowState() == RuntimeLoopState.Flow.BREAK) {
+                    LOGGER.fine("Breaking for loop");
+                    break;
+                } else if (context.getLoopState().getFlowState() == RuntimeLoopState.Flow.CONTINUE) {
+                    LOGGER.fine("Continuing for loop");
+                    context.getLoopState().setFlowState(RuntimeLoopState.Flow.NONE);
+                }
+                LOGGER.fine("Running for loop");
                 run(_for.getBody());
             }
+            context.getLoopState().loopEnd();
         }
         // While
         else if (statement instanceof StatementNode.While) {
             StatementNode.While _while = (StatementNode.While) statement;
             LOGGER.fine("Running while statement");
 
+            context.getLoopState().loopStart();
             while (run(_while.getCondition()).isTrue()) {
+                if (context.getLoopState().getFlowState() == RuntimeLoopState.Flow.BREAK) {
+                    LOGGER.fine("Breaking while loop");
+                    break;
+                } else if (context.getLoopState().getFlowState() == RuntimeLoopState.Flow.CONTINUE) {
+                    LOGGER.fine("Continuing while loop");
+                    context.getLoopState().setFlowState(RuntimeLoopState.Flow.NONE);
+                }
+                LOGGER.fine("Running while loop");
                 run(_while.getBody());
             }
+            context.getLoopState().loopEnd();
+        }
+        // Break
+        else if (statement instanceof StatementNode.Break) {
+            LOGGER.fine("Running break statement");
+            if (!context.getLoopState().inLoop()) {
+                throw new InvalidFlowStatementException("break");
+            }
+            context.getLoopState().setFlowState(RuntimeLoopState.Flow.BREAK);
+        }
+        // Continue
+        else if (statement instanceof StatementNode.Continue) {
+            LOGGER.fine("Running continue statement");
+            if (!context.getLoopState().inLoop()) {
+                throw new InvalidFlowStatementException("continue");
+            }
+            context.getLoopState().setFlowState(RuntimeLoopState.Flow.CONTINUE);
         }
         // Return
         else if (statement instanceof StatementNode.Return) {

@@ -25,8 +25,8 @@ public class Main {
             Lexer lexer = new Lexer(iter);
             ProgramParser parser = new ProgramParser(lexer);
             ProgramNode node = parser.parse();
-            System.out.println("\n\n***** Abstract Syntax Tree *****");
-            System.out.println(node);
+//            System.out.println("\n\n***** Abstract Syntax Tree *****");
+//            System.out.println(node);
 
             System.out.println("\n\n***** Runtime *****");
             Runtime runtime = new Runtime(node);
@@ -47,7 +47,7 @@ public class Main {
         handler.setFormatter(new LogFormatter());
 
         Logger rootLogger = LogManager.getLogManager().getLogger("");
-        rootLogger.setLevel(Level.INFO);
+        rootLogger.setLevel(Level.ALL);
         rootLogger.addHandler(handler);
     }
 }
