@@ -1,7 +1,13 @@
-boolean main() {
-    int a;
-    a = 5;
-    a = 10 / (3 + 1);
-    a += 5;
-    return !(a == 7);
+int main() {
+    int a= 0;
+    int i;
+    for (i = 0; i < 5; i+= 1) {
+        a += i;
+    }
+
+    while (i > 0) {
+        a -= i;
+        i -= 1;
+    }
+    return a;
 }

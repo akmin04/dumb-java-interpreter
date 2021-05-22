@@ -120,17 +120,50 @@ public final class Runtime {
             }
             context.putVar(var.getName(), value);
         }
+        // If
+        else if (statement instanceof StatementNode.If) {
+            StatementNode.If _if = (StatementNode.If) statement;
+            LOGGER.fine("Running if statement");
+
+            if (run(_if.getCondition()).isTrue()) {
+                LOGGER.fine("Pass condition");
+                run(_if.getBody());
+            } else {
+                LOGGER.fine("Fail condition");
+                run(_if.getElse());
+            }
+        }
+        // For
+        else if (statement instanceof StatementNode.For) {
+            StatementNode.For _for = (StatementNode.For) statement;
+            LOGGER.fine("Running for statement");
+
+            for (run(_for.getInit()); run(_for.getCondition()).isTrue(); run(_for.getPost())) {
+                run(_for.getBody());
+            }
+        }
+        // While
+        else if (statement instanceof StatementNode.While) {
+            StatementNode.While _while = (StatementNode.While) statement;
+            LOGGER.fine("Running while statement");
+
+            while (run(_while.getCondition()).isTrue()) {
+                run(_while.getBody());
+            }
+        }
+        // Return
+        else if (statement instanceof StatementNode.Return) {
+            StatementNode.Return ret = (StatementNode.Return) statement;
+            LOGGER.fine("Running return statement");
+
+            context.setReturnValue(run(ret.getExpr()));
+        }
         // Expression
         else if (statement instanceof StatementNode.Expression) {
             StatementNode.Expression expr = (StatementNode.Expression) statement;
             LOGGER.fine("Running expression statement: " + statement.getNodeName());
 
             run(expr.getExpr());
-        } else if (statement instanceof StatementNode.Return) {
-            StatementNode.Return ret = (StatementNode.Return) statement;
-            LOGGER.fine("Running return statement");
-
-            context.setReturnValue(run(ret.getExpr()));
         }
     }
 

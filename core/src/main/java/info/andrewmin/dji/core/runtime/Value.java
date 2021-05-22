@@ -2,6 +2,7 @@ package info.andrewmin.dji.core.runtime;
 
 import info.andrewmin.dji.core.exceptions.BinaryTypeMismatchException;
 import info.andrewmin.dji.core.exceptions.InternalException;
+import info.andrewmin.dji.core.exceptions.TypeMismatchException;
 import info.andrewmin.dji.core.exceptions.UnaryTypeMismatchException;
 import info.andrewmin.dji.core.tokens.LiteralToken;
 import info.andrewmin.dji.core.tokens.SymbolTokenVariant;
@@ -67,6 +68,18 @@ public abstract class Value<T> {
      */
     public T getValue() {
         return value;
+    }
+
+    /**
+     * Get the boolean of a boolean value.
+     *
+     * @return The boolean.
+     */
+    public boolean isTrue() {
+        if (!(this instanceof Value.Boolean)) {
+            throw new TypeMismatchException(TypeTokenVariant.BOOLEAN, getType());
+        }
+        return ((Boolean) this).getValue();
     }
 
     /**
