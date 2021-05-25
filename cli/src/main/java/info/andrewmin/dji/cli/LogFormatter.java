@@ -3,7 +3,7 @@ package info.andrewmin.dji.cli;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
-class LogFormatter extends Formatter {
+final class LogFormatter extends Formatter {
     @Override
     public String format(LogRecord record) {
         return "[" +

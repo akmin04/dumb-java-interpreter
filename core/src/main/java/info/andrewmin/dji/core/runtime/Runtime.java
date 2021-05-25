@@ -91,6 +91,7 @@ public final class Runtime {
     /**
      * Run a statement.
      *
+     * @param store     The variable store for the current function.
      * @param statement The statement node.
      */
     private void run(RuntimeStore store, StatementNode statement) {
@@ -214,7 +215,8 @@ public final class Runtime {
     /**
      * Run an expression and get it's value.
      *
-     * @param expr The expression node.
+     * @param store The variable store for the current function.
+     * @param expr  The expression node.
      * @return The expression's value.
      */
     private Value<?> run(RuntimeStore store, ExpressionNode expr) {
