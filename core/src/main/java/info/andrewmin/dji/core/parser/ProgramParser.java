@@ -7,7 +7,6 @@ import info.andrewmin.dji.core.lexer.Lexer;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * A program node parser.
@@ -19,8 +18,6 @@ import java.util.logging.Logger;
  * @see ExpressionParser
  */
 public final class ProgramParser {
-    private static final Logger LOGGER = Logger.getLogger(ProgramParser.class.getName());
-
     private final Lexer lexer;
     private final FunctionParser functionParser;
 

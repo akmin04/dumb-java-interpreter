@@ -56,7 +56,7 @@ final class StatementParser {
         // VariableDeclaration
         else if (peek instanceof TypeToken) {
             LOGGER.fine("Variable declaration statement");
-            TypeTokenVariant type = lexer.nextType().getType();
+            TypeTokenVariant type = lexer.nextType().getVariant();
             String var = lexer.nextIdentifier().getIdentifier();
             ExpressionNode expr;
 
@@ -143,8 +143,9 @@ final class StatementParser {
             LOGGER.fine("Semicolon statement");
             lexer.next();
             return parse();
-        } else {
-            // Expression
+        }
+        // Expression
+        else {
             LOGGER.fine("Expression statement");
             ExpressionNode expr = expressionParser.parse();
             lexer.next(SymbolTokenVariant.SEMICOLON);

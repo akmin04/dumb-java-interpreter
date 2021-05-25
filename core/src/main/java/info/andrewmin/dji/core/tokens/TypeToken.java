@@ -3,43 +3,36 @@ package info.andrewmin.dji.core.tokens;
 import info.andrewmin.dji.core.lexer.FileLoc;
 
 /**
- * A symbol token.
+ * A type token.
  *
  * @see TypeTokenVariant
  */
 public final class TypeToken extends Token {
-    private final TypeTokenVariant type;
+    private final TypeTokenVariant variant;
 
     /**
-     * Construct a TypeToken.
+     * Construct a new variant token.
      *
-     * @param startLoc the starting location of the first character of the token (inclusive).
-     * @param endLoc   the ending location of the first character of the token (exclusive).
-     * @param type     the TypeTokenType.
+     * @param startLoc The starting location of the first character of the token (inclusive).
+     * @param endLoc   The ending location of the first character of the token (exclusive).
+     * @param variant  The variant.
      */
-    public TypeToken(FileLoc startLoc, FileLoc endLoc, TypeTokenVariant type) {
+    public TypeToken(FileLoc startLoc, FileLoc endLoc, TypeTokenVariant variant) {
         super("Type", startLoc, endLoc);
-        this.type = type;
+        this.variant = variant;
     }
 
     /**
      * Get the type variant.
      *
-     * @return a TypeTokenVariant.
+     * @return The type variant.
      */
-    public TypeTokenVariant getType() {
-        return type;
+    public TypeTokenVariant getVariant() {
+        return variant;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-//    @Override
-//    public String toString() {
-//        return super.toString() + ": " + type.name() + " " + type.type;
-//    }
     @Override
     public String rawString() {
-        return type.type;
+        return variant.type;
     }
 }

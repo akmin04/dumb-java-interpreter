@@ -14,7 +14,7 @@ public final class IdentifierToken extends Token {
     private final String identifier;
 
     /**
-     * Construct a new identifier Token.
+     * Construct a new identifier token.
      *
      * @param startLoc   The starting location of the first character of the token (inclusive).
      * @param endLoc     The ending location of the first character of the token (exclusive).

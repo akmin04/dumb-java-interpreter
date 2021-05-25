@@ -55,7 +55,7 @@ public final class Runtime {
      */
     private Value<?> run(FunctionNode function, List<Value<?>> args) {
         LOGGER.info("Running function " + function.getName());
-        context.pushVarScope();
+        RuntimeStore store = new RuntimeStore(function.getName());
 
         // Push arguments
         if (function.getParameters().size() != args.size()) {
@@ -65,16 +65,15 @@ public final class Runtime {
             if (function.getParameters().get(i).getType() != args.get(i).getType()) {
                 throw new InvalidArgumentException(function.getName(), function.getParameters(), args);
             }
-            context.putVar(function.getParameters().get(i).getName(), args.get(i));
+            store.put(function.getParameters().get(i).getName(), args.get(i));
         }
 
         // Run statements
         for (StatementNode statement : function.getStatements()) {
-            run(statement);
+            run(store, statement);
             if (context.getReturnValue() != null) {
                 Value<?> ret = context.getReturnValue();
                 context.resetReturnValue();
-                context.popVarScope();
 
                 if (function.getReturnType() != ret.getType()) {
                     throw new TypeMismatchException(function.getReturnType(), ret.getType());
@@ -86,7 +85,6 @@ public final class Runtime {
         if (function.getReturnType() != TypeTokenVariant.VOID) {
             throw new MissingReturnException(function.getName());
         }
-        context.popVarScope();
         return null;
     }
 
@@ -95,7 +93,7 @@ public final class Runtime {
      *
      * @param statement The statement node.
      */
-    private void run(StatementNode statement) {
+    private void run(RuntimeStore store, StatementNode statement) {
         // Skip statements until end of loop if break or continue is called.
         if (context.getLoopState().getFlowState() != RuntimeLoopState.Flow.NONE) {
             LOGGER.fine("Skipping statement, flow state is " + context.getLoopState().getFlowState());
@@ -107,11 +105,9 @@ public final class Runtime {
             StatementNode.Block block = (StatementNode.Block) statement;
             LOGGER.fine("Running block statement");
 
-            context.pushVarScope();
             for (StatementNode s : block.getStatements()) {
-                run(s);
+                run(store, s);
             }
-            context.popVarScope();
         }
         // VariableDeclaration
         if (statement instanceof StatementNode.VariableDeclaration) {
@@ -119,26 +115,26 @@ public final class Runtime {
             LOGGER.fine("Running variable declaration: " + decl.getName());
 
             Var var = new Var(decl.getType(), decl.getName());
-            Value<?> value = run(decl.getExpr());
+            Value<?> value = run(store, decl.getExpr());
 
             if (var.getType() == TypeTokenVariant.VOID) {
                 throw new VoidTypeException(var.getName());
             } else if (var.getType() != value.getType()) {
                 throw new TypeMismatchException(var.getType(), value.getType());
             }
-            context.putVar(var.getName(), value);
+            store.put(var.getName(), value);
         }
         // If
         else if (statement instanceof StatementNode.If) {
             StatementNode.If _if = (StatementNode.If) statement;
             LOGGER.fine("Running if statement");
 
-            if (run(_if.getCondition()).isTrue()) {
+            if (run(store, _if.getCondition()).isTrue()) {
                 LOGGER.fine("Pass condition");
-                run(_if.getBody());
+                run(store, _if.getBody());
             } else {
                 LOGGER.fine("Fail condition");
-                run(_if.getElse());
+                run(store, _if.getElse());
             }
         }
         // For
@@ -147,7 +143,8 @@ public final class Runtime {
             LOGGER.fine("Running for statement");
 
             context.getLoopState().loopStart();
-            for (run(_for.getInit()); run(_for.getCondition()).isTrue(); run(_for.getPost())) {
+            store.pushScope();
+            for (run(store, _for.getInit()); run(store, _for.getCondition()).isTrue(); run(store, _for.getPost())) {
                 if (context.getLoopState().getFlowState() == RuntimeLoopState.Flow.BREAK) {
                     LOGGER.fine("Breaking for loop");
                     break;
@@ -156,9 +153,10 @@ public final class Runtime {
                     context.getLoopState().setFlowState(RuntimeLoopState.Flow.NONE);
                 }
                 LOGGER.fine("Running for loop");
-                run(_for.getBody());
+                run(store, _for.getBody());
             }
             context.getLoopState().loopEnd();
+            store.popScope();
         }
         // While
         else if (statement instanceof StatementNode.While) {
@@ -166,7 +164,8 @@ public final class Runtime {
             LOGGER.fine("Running while statement");
 
             context.getLoopState().loopStart();
-            while (run(_while.getCondition()).isTrue()) {
+            store.pushScope();
+            while (run(store, _while.getCondition()).isTrue()) {
                 if (context.getLoopState().getFlowState() == RuntimeLoopState.Flow.BREAK) {
                     LOGGER.fine("Breaking while loop");
                     break;
@@ -175,9 +174,10 @@ public final class Runtime {
                     context.getLoopState().setFlowState(RuntimeLoopState.Flow.NONE);
                 }
                 LOGGER.fine("Running while loop");
-                run(_while.getBody());
+                run(store, _while.getBody());
             }
             context.getLoopState().loopEnd();
+            store.popScope();
         }
         // Break
         else if (statement instanceof StatementNode.Break) {
@@ -200,14 +200,14 @@ public final class Runtime {
             StatementNode.Return ret = (StatementNode.Return) statement;
             LOGGER.fine("Running return statement");
 
-            context.setReturnValue(run(ret.getExpr()));
+            context.setReturnValue(run(store, ret.getExpr()));
         }
         // Expression
         else if (statement instanceof StatementNode.Expression) {
             StatementNode.Expression expr = (StatementNode.Expression) statement;
             LOGGER.fine("Running expression statement: " + statement.getNodeName());
 
-            run(expr.getExpr());
+            run(store, expr.getExpr());
         }
     }
 
@@ -217,7 +217,7 @@ public final class Runtime {
      * @param expr The expression node.
      * @return The expression's value.
      */
-    private Value<?> run(ExpressionNode expr) {
+    private Value<?> run(RuntimeStore store, ExpressionNode expr) {
         // Literal
         if (expr instanceof ExpressionNode.Literal) {
             ExpressionNode.Literal literal = (ExpressionNode.Literal) expr;
@@ -230,21 +230,21 @@ public final class Runtime {
             ExpressionNode.VariableReference varRef = (ExpressionNode.VariableReference) expr;
             LOGGER.fine("Running variable reference: " + varRef.getName());
 
-            return context.getVar(varRef.getName());
+            return store.get(varRef.getName());
         }
         // FunctionCall
         else if (expr instanceof ExpressionNode.FunctionCall) {
-            ExpressionNode.FunctionCall funCall = (ExpressionNode.FunctionCall) expr;
-            LOGGER.fine("Running function call: " + funCall.getName());
+            ExpressionNode.FunctionCall funcCall = (ExpressionNode.FunctionCall) expr;
+            LOGGER.fine("Running function call: " + funcCall.getName());
 
-            FunctionNode function = program.getFunctions().get(funCall.getName());
+            FunctionNode function = program.getFunctions().get(funcCall.getName());
             if (function == null) {
-                throw new UnresolvedIdentifierException(funCall.getName());
+                throw new UnresolvedIdentifierException(funcCall.getName());
             }
 
             List<Value<?>> args = new ArrayList<>();
-            for (int i = 0; i < funCall.getArgs().size(); i++) {
-                args.add(i, run(funCall.getArgs().get(i)));
+            for (int i = 0; i < funcCall.getArgs().size(); i++) {
+                args.add(i, run(store, funcCall.getArgs().get(i)));
             }
 
             return run(function, args);
@@ -254,8 +254,8 @@ public final class Runtime {
             ExpressionNode.Binary binary = (ExpressionNode.Binary) expr;
             LOGGER.fine("Running binary: " + binary.getOperator());
 
-            Value<?> leftValue = run(binary.getLeftExpr());
-            Value<?> rightValue = run(binary.getRightExpr());
+            Value<?> leftValue = run(store, binary.getLeftExpr());
+            Value<?> rightValue = run(store, binary.getRightExpr());
             SymbolTokenVariant op = binary.getOperator();
 
             // Left hand variable
@@ -277,7 +277,7 @@ public final class Runtime {
                 }
 
                 if (newValue != null) {
-                    context.setVar(varRef.getName(), newValue);
+                    store.put(varRef.getName(), newValue);
                     return newValue;
                 }
             }
@@ -321,7 +321,7 @@ public final class Runtime {
             ExpressionNode.Unary unary = (ExpressionNode.Unary) expr;
             LOGGER.fine("Running unary: " + unary.getOperator());
 
-            Value<?> value = run(unary.getExpr());
+            Value<?> value = run(store, unary.getExpr());
             SymbolTokenVariant op = unary.getOperator();
 
             if (op == SymbolTokenVariant.SUB) {

@@ -60,7 +60,7 @@ public final class Lexer implements Iterator<Token> {
     /**
      * Get the next identifier token.
      *
-     * @return The next identifier token
+     * @return The next identifier token.
      * @see IdentifierToken
      */
     public IdentifierToken nextIdentifier() {
@@ -77,7 +77,7 @@ public final class Lexer implements Iterator<Token> {
     /**
      * Get the next keyword token.
      *
-     * @return The next keyword token
+     * @return The next keyword token.
      * @see KeywordToken
      */
     public KeywordToken nextKeyword() {
@@ -94,7 +94,7 @@ public final class Lexer implements Iterator<Token> {
     /**
      * Get the next symbol token.
      *
-     * @return The next symbol token
+     * @return The next symbol token.
      * @see SymbolToken
      */
     public SymbolToken nextSymbol() {
@@ -111,7 +111,7 @@ public final class Lexer implements Iterator<Token> {
     /**
      * Get the next type token.
      *
-     * @return The next type token
+     * @return The next type token.
      * @see TypeToken
      */
     public TypeToken nextType() {
@@ -120,7 +120,6 @@ public final class Lexer implements Iterator<Token> {
         }
         Token next = next();
         if (!(next instanceof TypeToken)) {
-            System.err.println(next);
             throw new UnexpectedCharacterException(next);
         }
         return (TypeToken) next;

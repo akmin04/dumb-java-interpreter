@@ -40,7 +40,7 @@ final class FunctionParser {
      */
     FunctionNode parse() {
         LOGGER.fine("Parsing function");
-        TypeTokenVariant type = lexer.nextType().getType();
+        TypeTokenVariant type = lexer.nextType().getVariant();
         String func = lexer.nextIdentifier().getIdentifier();
         LOGGER.fine("Name: " + func);
         lexer.next(SymbolTokenVariant.LPAREN);
@@ -53,7 +53,7 @@ final class FunctionParser {
         } else {
             while (true) {
                 Var parameter = new Var(
-                        lexer.nextType().getType(),
+                        lexer.nextType().getVariant(),
                         lexer.nextIdentifier().getIdentifier()
                 );
                 parameters.add(parameter);

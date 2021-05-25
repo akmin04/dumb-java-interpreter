@@ -1,15 +1,22 @@
 int main() {
-    int a= 0;
+    int a = 0;
     for (int i = 0; i < 5; i += 1) {
         if (i == 3) break;
         for (int j = 0; j < 3; j += 1) {
             if (j == 1) {
                 continue;
             }
-            a += 1;
+            a += sum(i * j);
         }
     }
 
-
     return a;
+}
+
+int sum(int k) {
+    if (k > 0) {
+      return k + sum(k - 1);
+    } else {
+      return 0;
+    }
 }
