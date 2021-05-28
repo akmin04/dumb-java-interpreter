@@ -18,21 +18,21 @@ public final class Main implements Callable<Integer> {
 
     @SuppressWarnings("unused")
     @CommandLine.Parameters(index = "0", description = "The source file.")
-    private File file;
+    public File file;
 
     @CommandLine.Option(names = "-v", description = "Verbosity level (-v, -vv).")
-    boolean[] verbosity = new boolean[0];
+    public boolean[] verbosity = new boolean[0];
 
     @CommandLine.ArgGroup
-    OutputFormat outputFormat = new OutputFormat();
+    public OutputFormat outputFormat = new OutputFormat();
 
     @SuppressWarnings("FieldMayBeFinal")
-    static class OutputFormat {
+    public static class OutputFormat {
         @CommandLine.Option(names = "--tokens", description = "Print the tokens.")
-        private boolean tokens = false;
+        public boolean tokens = false;
 
         @CommandLine.Option(names = "--ast", description = "Print the abstract syntax tree.")
-        private boolean ast = false;
+        public boolean ast = false;
     }
 
     @Override
@@ -87,7 +87,8 @@ public final class Main implements Callable<Integer> {
             System.err.println("Error: " + e.getMessage());
             return 1;
         } catch (Exception e) {
-            System.err.println("Internal error: " + e.getMessage());
+            System.err.println("Internal error");
+            e.printStackTrace();
             return 1;
         }
         return 0;

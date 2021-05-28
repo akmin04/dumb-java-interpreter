@@ -1,6 +1,11 @@
-# DJI: Dumb Java Interpreter
+# Preliminary Specifications
 
-Andy Min - 2 7
+
+**DJI - Dumb Java Interpreter**
+
+Andy Min - 2021 May 7
+
+## Overview
 
 DJI is a simple interpreter for a Java-like language with a small subset of features and syntax from Java. The interpreter features a custom lexical analyzer, parser, and runtime engine. The interpreter will have a friendly command line interface where users can input their source files to run the program.
 

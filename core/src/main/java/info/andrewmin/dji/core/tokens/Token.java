@@ -78,7 +78,7 @@ public abstract class Token {
 
     @Override
     public String toString() {
-        return name + "(" + rawString() + ")";
+        return name + ": " + rawString();
     }
 
     /**

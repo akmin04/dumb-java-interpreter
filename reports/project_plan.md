@@ -1,17 +1,17 @@
 # Project Plan
 
-## DJI - Dumb Java Interpreter
-
-Andy Min - 2021 April 30
+**DJI - Dumb Java Interpreter**
 
 *A simple interpreter for a small subset of syntax and features from Java.*
 
-### Challenges
+Andy Min - 2021 April 30
+
+## Challenges
 
 - Creating a modular system and organized class structure to be able to easily add new features
 - Writing a full testing suite with integration tests
 
-### Major Tasks and Schedule
+## Major Tasks and Schedule
 
 | Task                                                         | When                   |
 | ------------------------------------------------------------ | ---------------------- |

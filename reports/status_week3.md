@@ -1,10 +1,10 @@
-# Status Report - Week 3
+# Status Report 3
 
-## DJI - Dumb Java Interpreter
-
-Andy Min - 2021 May 14
+**DJI - Dumb Java Interpreter**
 
 *A simple interpreter for a small subset of syntax and features from Java.*
+
+Andy Min - 2021 May 14
 
 ### Accomplishments
 

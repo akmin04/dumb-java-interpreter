@@ -1,0 +1,5 @@
+String main() {
+    String str = "Hello ";
+    str += "World";
+    return str;
+}

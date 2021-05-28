@@ -1,5 +1,5 @@
 /**
- * The core dumb java interpreter API.
+ * The core dumb java interpreter packages.
  */
 module info.andrewmin.dji.core {
     requires java.logging;
